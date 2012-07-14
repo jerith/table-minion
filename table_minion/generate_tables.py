@@ -35,13 +35,40 @@ class Players(object):
                 '  %s' % player for player in self.players])
 
 
-class GameSlot(object):
+class Game(object):
     def __init__(self, slot, name, author, system, blurb):
         self.slot = slot
         self.name = name
         self.author = author
         self.system = system
         self.blurb = blurb
+
+    def __str__(self):
+        return '<Game %s - %s (%s) - %s: %s>' % (
+            self.slot, self.name, self.system, self.author, self.blurb)
+
+
+class Games(object):
+    def __init__(self, games):
+        self.games = games
+
+
+    @classmethod
+    def from_csv(cls, csv_file):
+        reader = csv.DictReader(csv_file)
+        games = []
+        for game_dict in reader:
+            games.append(Game(
+                    game_dict['slot'],
+                    game_dict['name'],
+                    game_dict['author'],
+                    game_dict['system'],
+                    game_dict['blurb']))
+        return cls(games)
+
+    def __str__(self):
+        return '<Ganes:\n%s\n>' % '\n'.join([
+                '  %s' % game for games in self.games])
 
 
 class GameTable(object):

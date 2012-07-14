@@ -1,10 +1,10 @@
 from unittest import TestCase
 from StringIO import StringIO
 
-from table_minion.generate_tables import Players
+from table_minion.generate_tables import Players, Games
 
 
-class TestPlayerList(TestCase):
+class TestPlayers(TestCase):
     def test_from_csv(self):
         players_file = StringIO('\n'.join([
                     'name,team,1A,1B,2A,2B',
@@ -25,3 +25,23 @@ class TestPlayerList(TestCase):
         self.assertEqual('Jane Bloggs', players.players[2].name)
         self.assertEqual(None, players.players[2].team)
         self.assertEqual({'1B': 'X', '2B': 'X'}, players.players[2].slots)
+
+
+class TestGames(TestCase):
+    def test_from_csv(self):
+        games_file = StringIO('\n'.join([
+                    'slot,name,author,system,blurb',
+                    '1A,Aargh!,Alice Ader,SillyDice,Camelot is a silly place.',
+                    '1B,Business,Bob Bobson,SrsBsns,Make some RoI.',
+                    '2A,Alien Attack,Axl Rose,Cthulhu,Giant robots!',
+                    '2B,Bouncing Babies,Brian May,nWoD,Not a very good idea.',
+                    ]))
+        games = Games.from_csv(games_file)
+
+        self.assertEqual('1A', games.games[0].slot)
+        self.assertEqual('Aargh!', games.games[0].name)
+        self.assertEqual('Alice Ader', games.games[0].author)
+        self.assertEqual('SillyDice', games.games[0].system)
+        self.assertEqual('Camelot is a silly place.', games.games[0].blurb)
+
+        # TODO: Finish this.
