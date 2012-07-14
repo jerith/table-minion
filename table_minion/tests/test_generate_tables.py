@@ -43,5 +43,7 @@ class TestGames(TestCase):
         self.assertEqual('Alice Ader', games.games[0].author)
         self.assertEqual('SillyDice', games.games[0].system)
         self.assertEqual('Camelot is a silly place.', games.games[0].blurb)
+        self.assertEqual('Camelot is a silly place.', games.games[0].blurb)
+        self.assertEqual('Camelot is a silly place.', games.games[0].blurb)
 
         # TODO: Finish this.
