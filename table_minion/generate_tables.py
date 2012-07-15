@@ -11,18 +11,21 @@ class Player(object):
         self.registration = registration
         self.slots = dict(item for item in registration.items() if item[1])
 
-    def get_name(self):
-        name = self.name
-        if self.team is not None:
-            name = '%s (%s)' % (name, self.team)
-        return name
-
     def __str__(self):
         return '<Player %s (%s) %s>' % (
             self.name, self.team, self.slots)
 
     def __repr__(self):
         return str(self)
+
+
+def get_name(player):
+    if player is None:
+        return '(None)'
+    name = player.name
+    if player.team is not None:
+        name = '%s (%s)' % (name, player.team)
+    return name
 
 
 class Players(object):
@@ -100,8 +103,8 @@ class GameTable(object):
 
     def __str__(self):
         return '<Table %s: %s\n%s\n>' % (
-            self.slot, self.gm.get_name(), '\n'.join([
-                    '  %s' % player.get_name() for player in self.players]))
+            self.slot, get_name(self.gm), '\n'.join([
+                    '  %s' % get_name(player) for player in self.players]))
 
     def __repr__(self):
         return str(self)
@@ -124,8 +127,8 @@ class GameTables(object):
     def make_list(self):
         return '\n'.join([
                 '%s: %s\n%s\n' % (
-                    t.slot, t.gm.get_name(), '\n'.join([
-                            '  %s' % p.get_name() for p in t.players]))
+                    t.slot, get_name(t.gm), '\n'.join([
+                            '  %s' % get_name(p) for p in t.players]))
                 for t in self.tables])
 
     def validate_player(self, player):
@@ -160,6 +163,7 @@ class GameTables(object):
             gms.append(either.pop())
         if len(gms) < table_count:
             print "WARNING: Insufficient GMs."
+            gms.extend([None] * (table_count - len(gms)))
             table_count = len(gms)
 
         players.extend(either)

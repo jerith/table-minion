@@ -67,7 +67,7 @@ class TestGameTables(TestCase):
         games = get_games()
         players = []
         players.extend(make_players(10, 'Alpha', **{'1A': 'P', '1B': ''}))
-        players.extend(make_players(3, 'Able', **{'1A': 'X', '1B': ''}))
+        players.extend(make_players(1, 'Able', **{'1A': 'X', '1B': ''}))
         players.extend(make_players(2, 'Ares', 'Olympians',
                                     **{'1A': 'P', '1B': ''}))
         players.extend(make_players(9, 'Bravo', **{'1A': '', '1B': 'P'}))
