@@ -1,15 +1,18 @@
 # -*- test-case-name: table_minion.tests.test_players -*-
 
 
+import re
 import csv
 
 
+SLOT_RE = re.compile(r'^[0-9]+[A-Z]$')
+
+
 class Player(object):
-    def __init__(self, name, team, registration):
+    def __init__(self, name, team, slots):
         self.name = name
         self.team = team or None
-        self.registration = registration
-        self.slots = dict(item for item in registration.items() if item[1])
+        self.slots = slots
 
     def __str__(self):
         return '<Player %s (%s) %s>' % (
@@ -19,13 +22,12 @@ class Player(object):
         return str(self)
 
 
-def get_name(player):
+def player_name(player):
     if player is None:
         return '(None)'
-    name = player.name
     if player.team is not None:
-        name = '%s (%s)' % (name, player.team)
-    return name
+        return '%s (%s)' % (player.name, player.team)
+    return player.name
 
 
 class Players(object):
@@ -37,10 +39,12 @@ class Players(object):
         reader = csv.DictReader(csv_file)
         players = []
         for player_dict in reader:
+            slots = dict((k, v) for k, v in player_dict.iteritems()
+                         if v and (SLOT_RE.match(k)))
             players.append(Player(
-                    player_dict.pop('name'),
-                    player_dict.pop('team'),
-                    player_dict))
+                    player_dict['name'],
+                    player_dict['team'],
+                    slots))
         return cls(players)
 
     def __str__(self):

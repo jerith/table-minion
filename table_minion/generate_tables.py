@@ -2,7 +2,7 @@
 
 import random
 
-from table_minion.players import get_name
+from table_minion.players import player_name
 
 
 class GameTable(object):
@@ -13,8 +13,8 @@ class GameTable(object):
 
     def __str__(self):
         return '<Table %s: %s\n%s\n>' % (
-            self.slot, get_name(self.gm), '\n'.join([
-                    '  %s' % get_name(player) for player in self.players]))
+            self.slot, player_name(self.gm), '\n'.join([
+                    '  %s' % player_name(player) for player in self.players]))
 
     def __repr__(self):
         return str(self)
@@ -37,8 +37,8 @@ class GameTables(object):
     def make_list(self):
         return '\n'.join([
                 '%s: %s\n%s\n' % (
-                    t.slot, get_name(t.gm), '\n'.join([
-                            '  %s' % get_name(p) for p in t.players]))
+                    t.slot, player_name(t.gm), '\n'.join([
+                            '  %s' % player_name(p) for p in t.players]))
                 for t in self.tables])
 
     def validate_player(self, player):
