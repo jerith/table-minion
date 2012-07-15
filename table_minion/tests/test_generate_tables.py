@@ -1,7 +1,7 @@
 from unittest import TestCase
 from StringIO import StringIO
 
-from table_minion.generate_tables import Players, Games, GameTables
+from table_minion.generate_tables import Player, Players, Games, GameTables
 
 
 def get_players():
@@ -46,21 +46,35 @@ class TestGames(TestCase):
     def test_from_csv(self):
         games = get_games()
 
-        self.assertEqual('1A', games.games[0].slot)
-        self.assertEqual('Aargh!', games.games[0].name)
-        self.assertEqual('Alice Able', games.games[0].author)
-        self.assertEqual('SillyDice', games.games[0].system)
-        self.assertEqual('Camelot is a silly place.', games.games[0].blurb)
-        self.assertEqual('Camelot is a silly place.', games.games[0].blurb)
-        self.assertEqual('Camelot is a silly place.', games.games[0].blurb)
+        self.assertEqual('1A', games.games['1A'].slot)
+        self.assertEqual('Aargh!', games.games['1A'].name)
+        self.assertEqual('Alice Able', games.games['1A'].author)
+        self.assertEqual('SillyDice', games.games['1A'].system)
+        self.assertEqual('Camelot is a silly place.', games.games['1A'].blurb)
+        self.assertEqual('Camelot is a silly place.', games.games['1A'].blurb)
+        self.assertEqual('Camelot is a silly place.', games.games['1A'].blurb)
 
         # TODO: Finish this.
+
+
+def make_players(count, name_prefix, team='', **reg):
+    return [Player('%s %s' % (name_prefix, i), team, reg)
+            for i in range(count)]
 
 
 class TestGameTables(TestCase):
     def test_lay_tables(self):
         games = get_games()
-        players = get_players()
+        players = []
+        players.extend(make_players(10, 'Alpha', **{'1A': 'P', '1B': ''}))
+        players.extend(make_players(3, 'Able', **{'1A': 'X', '1B': ''}))
+        players.extend(make_players(2, 'Ares', 'Olympians',
+                                    **{'1A': 'P', '1B': ''}))
+        players.extend(make_players(9, 'Bravo', **{'1A': '', '1B': 'P'}))
+        players.extend(make_players(2, 'Baker', **{'1A': '', '1B': 'X'}))
 
+        players = Players(players)
         game_tables = GameTables(games, players, ['1A', '1B'])
-        print game_tables.slotted_players
+        game_tables.lay_game_tables('1A')
+        print ''
+        print game_tables.make_list()
