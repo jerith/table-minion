@@ -14,6 +14,9 @@ class Player(object):
         return '<Player %s (%s) %s>' % (
             self.name, self.team, self.slots)
 
+    def __repr__(self):
+        return str(self)
+
 
 class Players(object):
     def __init__(self, players):
@@ -34,6 +37,9 @@ class Players(object):
         return '<Players:\n%s\n>' % '\n'.join([
                 '  %s' % player for player in self.players])
 
+    def __repr__(self):
+        return str(self)
+
 
 class Game(object):
     def __init__(self, slot, name, author, system, blurb,
@@ -51,11 +57,13 @@ class Game(object):
             self.slot, self.name, self.system, self.author, self.blurb,
             self.min_players, self.max_players)
 
+    def __repr__(self):
+        return str(self)
+
 
 class Games(object):
     def __init__(self, games):
         self.games = games
-
 
     @classmethod
     def from_csv(cls, csv_file):
@@ -71,7 +79,10 @@ class Games(object):
 
     def __str__(self):
         return '<Ganes:\n%s\n>' % '\n'.join([
-                '  %s' % game for games in self.games])
+                '  %s' % game for game in self.games])
+
+    def __repr__(self):
+        return str(self)
 
 
 class GameTable(object):
@@ -86,7 +97,23 @@ class GameTables(object):
         self.games = games
         self.players = players
         self.slots = slots
+        self.lay_tables()
 
-    def lay_tables(self, player_list):
-        raise NotImplementedError()
+    def validate_player(self, player):
+        return sum(1 for slot in self.slots if slot in player.slots) <= 1
 
+    def arrange_players(self):
+        slotted_players = {}
+        self.invalid_players = []
+        for player in self.players.players:
+            if not self.validate_player(player):
+                self.invalid_players.append(player)
+                print player
+                continue
+            for slot in self.slots:
+                if slot in player.slots:
+                    slotted_players.setdefault(slot, []).append(player)
+        return slotted_players
+
+    def lay_tables(self):
+        self.slotted_players = self.arrange_players()
