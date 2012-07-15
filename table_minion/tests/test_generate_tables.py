@@ -1,60 +1,8 @@
 from unittest import TestCase
-from StringIO import StringIO
 
-from table_minion.generate_tables import Player, Players, Games, GameTables
-
-
-def get_players():
-    players_file = StringIO('\n'.join([
-                'name,team,1A,1B,2A,2B',
-                'Gary Gygax,TSR,G,,G,',
-                'Joe Bloggs,TSR,P,,P,',
-                'Jane Bloggs,,,X,,X',
-                ]))
-    return Players.from_csv(players_file)
-
-
-def get_games():
-    games_file = StringIO('\n'.join([
-                'slot,name,author,system,blurb',
-                '1A,Aargh!,Alice Able,SillyDice,Camelot is a silly place.',
-                '1B,Business,Bob Bobson,SrsBsns,Make some RoI.',
-                '2A,Alien Attack,Axl Rose,Cthulhu,Giant robots!',
-                '2B,Bouncing Babies,Brian May,nWoD,Not a very good idea.',
-                ]))
-    return Games.from_csv(games_file)
-
-
-class TestPlayers(TestCase):
-    def test_from_csv(self):
-        players = get_players()
-
-        self.assertEqual('Gary Gygax', players.players[0].name)
-        self.assertEqual('TSR', players.players[0].team)
-        self.assertEqual({'1A': 'G', '2A': 'G'}, players.players[0].slots)
-
-        self.assertEqual('Joe Bloggs', players.players[1].name)
-        self.assertEqual('TSR', players.players[1].team)
-        self.assertEqual({'1A': 'P', '2A': 'P'}, players.players[1].slots)
-
-        self.assertEqual('Jane Bloggs', players.players[2].name)
-        self.assertEqual(None, players.players[2].team)
-        self.assertEqual({'1B': 'X', '2B': 'X'}, players.players[2].slots)
-
-
-class TestGames(TestCase):
-    def test_from_csv(self):
-        games = get_games()
-
-        self.assertEqual('1A', games.games['1A'].slot)
-        self.assertEqual('Aargh!', games.games['1A'].name)
-        self.assertEqual('Alice Able', games.games['1A'].author)
-        self.assertEqual('SillyDice', games.games['1A'].system)
-        self.assertEqual('Camelot is a silly place.', games.games['1A'].blurb)
-        self.assertEqual('Camelot is a silly place.', games.games['1A'].blurb)
-        self.assertEqual('Camelot is a silly place.', games.games['1A'].blurb)
-
-        # TODO: Finish this.
+from table_minion.players import Player, Players
+from table_minion.games import Game, Games
+from table_minion.generate_tables import GameTables
 
 
 def make_players(count, name_prefix, team='', **reg):
@@ -62,9 +10,15 @@ def make_players(count, name_prefix, team='', **reg):
             for i in range(count)]
 
 
+def make_games(slots):
+    return Games(dict(
+            (s, Game(s, 'Game %s' % s, 'Author', 'System', 'Blurb'))
+            for s in slots))
+
+
 class TestGameTables(TestCase):
     def test_lay_tables(self):
-        games = get_games()
+        games = make_games(['1A', '1B'])
         players = []
         players.extend(make_players(10, 'Alpha', **{'1A': 'P', '1B': ''}))
         players.extend(make_players(1, 'Able', **{'1A': 'X', '1B': ''}))
