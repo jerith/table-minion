@@ -1,20 +1,7 @@
 from unittest import TestCase
 
 from utils import make_games, make_players
-# from table_minion.players import Player, Players
-# from table_minion.games import Game, Games
-from table_minion.generate_tables import GameTables
-
-
-# def make_players(count, name_prefix, team='', **reg):
-#     return [Player('%s %s' % (name_prefix, i), team, reg)
-#             for i in range(count)]
-
-
-# def make_games(slots):
-#     return Games(dict(
-#             (s, Game(s, 'Game %s' % s, 'Author', 'System', 'Blurb'))
-#             for s in slots))
+from table_minion.generate_tables import Tables
 
 
 class TestGameTables(TestCase):
@@ -28,10 +15,10 @@ class TestGameTables(TestCase):
                 (2, 'Baker', None, {'1B': 'X'}),
                 ])
 
-        game_tables = GameTables(games, players, ['1A', '1B'])
-        game_tables.lay_game_tables('1A')
-        print ''
-        print game_tables.make_list()
+        tables = Tables(games, players, ['1A', '1B'])
+        tables.lay_game_tables('1A')
+        # print ''
+        # print tables.make_list()
 
     # def test_lay_tables(self):
     #     games = make_games(['1A', '1B'])
