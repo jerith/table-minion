@@ -1,0 +1,8 @@
+{% extends "layout.html" %}
+{% block body %}
+  <ul>
+    <li><a href="{{ url_for('admin') }}">admin</a></li>
+    <li><a href="{{ url_for('players') }}">players</a></li>
+    <li><a href="{{ url_for('games') }}">games</a></li>
+  </ul>
+{% endblock %}

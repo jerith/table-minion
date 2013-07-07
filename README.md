@@ -11,3 +11,8 @@ Usage
 At present, you kind of need to read the code to get it to do anything. That
 will change once enough of the base functionality is in that it's worth
 building some UI stuff on top of it.
+
+Dependencies
+------------
+
+`pip install Flask`

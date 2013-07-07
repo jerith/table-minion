@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block pagetitle %}<h1>Games</h1>{% endblock %}
+{% block body %}
+  <ul class=games>
+  {% for game in games %}
+    <li>{{ game }}</li>
+  {% else %}
+    <li><em>No games found.</em></li>
+  {% endfor %}
+  </ul>
+{% endblock %}

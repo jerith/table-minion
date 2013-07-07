@@ -1,0 +1,14 @@
+{% extends "layout.html" %}
+{% block pagetitle %}<h1>Admin</h1>{% endblock %}
+{% block body %}
+  <ul>
+    <li><a href="{{ url_for('index') }}">home</a></li>
+  </ul>
+
+  <hr>
+  <form action="/create_database" method="POST">
+    <strong>Warning! Clicking this button will obliterate existing data.</strong>
+    <br/>
+    <input type="submit" value="Create database">
+  </form>
+{% endblock %}

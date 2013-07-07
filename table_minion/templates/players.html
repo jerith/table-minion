@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+{% block pagetitle %}<h1>Players</h1>{% endblock %}
+{% block body %}
+  <ul class=players>
+  {% for player in players %}
+    <li>{{ player }}</li>
+  {% else %}
+    <li><em>No players found.</em></li>
+  {% endfor %}
+  </ul>
+{% endblock %}
