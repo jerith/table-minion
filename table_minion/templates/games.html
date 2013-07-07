@@ -3,7 +3,7 @@
 {% block body %}
   <ul class=games>
   {% for game in games %}
-    <li>{{ game }}</li>
+    <li><a href="{{ url_for('game', slot=game.slot) }}">{{game.slot}}: {{game.name}}</a></li>
   {% else %}
     <li><em>No games found.</em></li>
   {% endfor %}

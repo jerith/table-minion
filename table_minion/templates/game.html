@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+{% block pagetitle %}<h1>{{game.slot}}: {{game.name}}</h1>{% endblock %}
+{% block body %}
+  Author: {{game.author}}<br/>
+  System: {{game.system}}<br/>
+  Blurb: {{game.blurb}}<br/>
+  Players: {{game.min_players}} - {{game.max_players}}<br/>
+
+  <ul class=tables>
+  {% for table in tables %}
+    <li><div class=table>
+        <ul>
+          <li><em>GM: {{player_name(table['gm'])}}</em></li>
+        {% for player in table['players'] %}
+          <li>{{player_name(player)}}</li>
+        {% endfor %}
+        </ul>
+    </div></li>
+    <br/>
+  {% else %}
+    <li><em>No tables found.</em></li>
+  {% endfor %}
+  </ul>
+
+  <form action="{{ url_for('game_lay_tables', slot=game.slot) }}" method="POST">
+    <strong>Warning! Clicking this button will obliterate existing data.</strong>
+    <br/>
+    <input type="submit" value="Lay tables">
+  </form>
+
+{% endblock %}

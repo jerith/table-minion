@@ -1,6 +1,7 @@
 from flask import Flask, url_for, redirect, flash, render_template
 
 from table_minion import db
+from table_minion.players import player_name
 
 
 app = Flask(__name__)
@@ -39,6 +40,26 @@ def reset_data():
 @app.route('/games/')
 def games():
     return render_template('games.html', games=db.get_games())
+
+
+@app.route('/games/<slot>/')
+def game(slot):
+    game = db.get_game(slot)
+    tables = db.get_game_tables(slot)
+    return render_template(
+        'game.html', game=game, tables=tables, player_name=player_name)
+
+
+@app.route('/games/<slot>/lay_tables', methods=['POST'])
+def game_lay_tables(slot):
+    from table_minion.generate_tables import Tables
+    players = db.get_players()
+    games = db.get_games()
+    tables = Tables(games, players, [slot])
+    db.set_game_tables(slot, tables.game_tables[slot].tables)
+
+    flash("Tables laid.")
+    return redirect(url_for('game', slot=slot))
 
 
 @app.route('/players/')

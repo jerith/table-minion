@@ -92,7 +92,7 @@ class Tables(object):
     @property
     def tables(self):
         tables = []
-        for game_tables in self.game_tables:
+        for game_tables in self.game_tables.values():
             tables.extend(game_tables.tables)
         return tables
 
@@ -127,11 +127,11 @@ class Tables(object):
         return slotted_players
 
     def lay_game_tables(self, slot):
-        self.game_tables.append(GameTables(
-            slot, self.games.games[slot], self.slotted_players[slot]))
+        self.game_tables[slot] = GameTables(
+            slot, self.games.games[slot], self.slotted_players[slot])
 
     def lay_tables(self):
-        self.game_tables = []
+        self.game_tables = {}
         self.slotted_players = self.arrange_players()
         for slot in self.slots:
             self.lay_game_tables(slot)
