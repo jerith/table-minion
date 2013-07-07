@@ -27,17 +27,30 @@ class Games(object):
     def __init__(self, games):
         self.games = games
 
+    def __iter__(self):
+        return self.games.itervalues()
+
+    def __getitem__(self, key):
+        return self.games[key]
+
+    @classmethod
+    def from_dicts(cls, game_dicts):
+        return cls(dict([
+            (gdict['slot'], Game(**gdict)) for gdict in game_dicts]))
+
     @classmethod
     def from_csv(cls, csv_file):
         reader = csv.DictReader(csv_file)
-        games = {}
+        games = []
         for game_dict in reader:
-            if not game_dict.get('max_players', None):
-                game_dict.pop('max_players', None)
-            if not game_dict.get('min_players', None):
-                game_dict.pop('min_players', None)
-            games[game_dict['slot']] = Game(**game_dict)
-        return cls(games)
+            max_players = game_dict.pop('max_players', None)
+            if max_players:
+                game_dict['max_players'] = int(max_players)
+            min_players = game_dict.pop('min_players', None)
+            if min_players:
+                game_dict['min_players'] = int(min_players)
+            games.append(game_dict)
+        return cls.from_dicts(games)
 
     def __str__(self):
         return '<Games:\n%s\n>' % '\n'.join([

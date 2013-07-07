@@ -14,9 +14,12 @@ class Player(object):
         self.team = team or None
         self.slots = slots
 
+    def _format_slots(self):
+        return list(sorted('%s:%s' % item for item in self.slots.iteritems()))
+
     def __str__(self):
         return '<Player %s (%s) %s>' % (
-            self.name, self.team, self.slots)
+            self.name, self.team, self._format_slots())
 
     def __repr__(self):
         return str(self)
@@ -34,18 +37,22 @@ class Players(object):
     def __init__(self, players):
         self.players = players
 
+    def __iter__(self):
+        return iter(self.players)
+
+    @classmethod
+    def from_dicts(cls, player_dicts):
+        return cls([Player(**pdict) for pdict in player_dicts])
+
     @classmethod
     def from_csv(cls, csv_file):
         reader = csv.DictReader(csv_file)
-        players = []
-        for player_dict in reader:
-            slots = dict((k, v) for k, v in player_dict.iteritems()
-                         if v and (SLOT_RE.match(k)))
-            players.append(Player(
-                    player_dict['name'],
-                    player_dict['team'],
-                    slots))
-        return cls(players)
+        return cls.from_dicts([{
+            'name': player_dict['name'],
+            'team': player_dict['team'],
+            'slots': dict((k, v) for k, v in player_dict.iteritems()
+                          if v and (SLOT_RE.match(k)))
+        } for player_dict in reader])
 
     def __str__(self):
         return '<Players:\n%s\n>' % '\n'.join([
