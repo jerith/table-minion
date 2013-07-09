@@ -1,11 +1,29 @@
 {% extends "layout.html" %}
 {% block pagetitle %}<h1>Games</h1>{% endblock %}
 {% block body %}
-  <ul class=games>
+  <table class="games" border=1 cellspacing=0 cellpadding=2>
+    <tr>
+      <th>slot</th>
+      <th>name</th>
+      <th>author</th>
+      <th>system</th>
+      <th>players</th>
   {% for game in games %}
-    <li><a href="{{ url_for('game', slot=game.slot) }}">{{game.slot}}: {{game.name}}</a></li>
-  {% else %}
-    <li><em>No games found.</em></li>
+    <tr>
+      <td><a href="{{ url_for('game', slot=game.slot) }}">{{ game.slot }}</a></td>
+      <td>{{ game.name }}</td>
+      <td>{{ game.author }}</td>
+      <td>{{ game.system }}</td>
+      <td>{{ game.player_count() }}</td>
+    </tr>
   {% endfor %}
-  </ul>
+  </table>
+  <hr/>
+  <form action="{{ url_for('games_upload') }}" method="post" enctype="multipart/form-data">
+    <strong>Warning! Importing games will obliterate existing game data.</strong>
+    <br/>
+    <input type="file" name="games.csv">
+    <br/>
+    <input type="submit" value="Import">
+  </form>
 {% endblock %}

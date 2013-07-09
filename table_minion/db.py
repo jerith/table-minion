@@ -104,6 +104,10 @@ def insert_player(player, commit=True):
 
 
 def import_players(players, delete=True):
+    if delete:
+        query_db('DELETE FROM game_tables;')
+        query_db('DELETE FROM player_registrations;')
+        query_db('DELETE FROM players;')
     for player in players:
         insert_player(player, commit=False)
     commit_db()
@@ -157,6 +161,9 @@ def insert_game(game, commit=True):
 
 
 def import_games(games, delete=True):
+    if delete:
+        query_db('DELETE FROM game_tables;')
+        query_db('DELETE FROM games;')
     for game in games:
         insert_game(game, commit=False)
     commit_db()

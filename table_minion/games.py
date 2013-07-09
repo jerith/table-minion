@@ -14,6 +14,11 @@ class Game(object):
         self.max_players = max_players
         self.min_players = min_players
 
+    def player_count(self):
+        if self.min_players == self.max_players:
+            return str(self.max_players)
+        return "%s-%s" % (self.min_players, self.max_players)
+
     def __str__(self):
         return '<Game %s - %s (%s) - %s: %s (%s-%s)>' % (
             self.slot, self.name, self.system, self.author, self.blurb,
@@ -32,6 +37,10 @@ class Games(object):
 
     def __getitem__(self, key):
         return self.games[key]
+
+    @property
+    def slots(self):
+        return self.games.keys()
 
     @classmethod
     def from_dicts(cls, game_dicts):

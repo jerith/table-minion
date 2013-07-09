@@ -1,11 +1,30 @@
 {% extends "layout.html" %}
 {% block pagetitle %}<h1>Players</h1>{% endblock %}
 {% block body %}
-  <ul class=players>
+  <table class="players" border=1 cellspacing=0 cellpadding=2>
+    <tr>
+      <th>name</th>
+      <th>team</th>
+    {% for slot in slots %}
+      <th>{{ slot }}</th>
+    {% endfor %}
   {% for player in players %}
-    <li>{{ player }}</li>
-  {% else %}
-    <li><em>No players found.</em></li>
+    <tr>
+      <td>{{ player.name }}</td>
+      <td>{{ player.team or '' }}</td>
+    {% for slot in slots %}
+      <td>{{ player.slots.get(slot, '') }}</td>
+    {% endfor %}
+    </tr>
   {% endfor %}
+  </table>
   </ul>
+  <hr/>
+  <form action="{{ url_for('players_upload') }}" method="post" enctype="multipart/form-data">
+    <strong>Warning! Importing players will obliterate existing player data.</strong>
+    <br/>
+    <input type="file" name="players.csv">
+    <br/>
+    <input type="submit" value="Import">
+  </form>
 {% endblock %}

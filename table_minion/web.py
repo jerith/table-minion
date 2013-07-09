@@ -1,7 +1,8 @@
-from flask import Flask, url_for, redirect, flash, render_template
+from flask import Flask, request, url_for, redirect, flash, render_template
 
 from table_minion import db
-from table_minion.players import player_name
+from table_minion.players import Players, player_name
+from table_minion.games import Games
 
 
 app = Flask(__name__)
@@ -39,7 +40,15 @@ def reset_data():
 
 @app.route('/games/')
 def games():
-    return render_template('games.html', games=db.get_games())
+    games = sorted(db.get_games(), key=lambda g: g.slot)
+    return render_template('games.html', games=games)
+
+
+@app.route('/games/upload', methods=['POST'])
+def games_upload():
+    db.import_games(Games.from_csv(request.files['games.csv']), delete=True)
+    flash("Games imported.")
+    return redirect(url_for('games'))
 
 
 @app.route('/games/<slot>/')
@@ -64,7 +73,23 @@ def game_lay_tables(slot):
 
 @app.route('/players/')
 def players():
-    return render_template('players.html', players=db.get_players())
+    slots = sorted(db.get_games().slots)
+    players = db.get_players()
+    player_only_slots = set(
+        s for p in players for s in p.slots.keys() if s not in slots)
+    if player_only_slots:
+        flash("Warning: Players are registered for unknown slots: %s" % (
+            ', '.join(sorted(player_only_slots)),), 'error')
+        slots = sorted(slots + list(player_only_slots))
+    return render_template('players.html', slots=slots, players=players)
+
+
+@app.route('/players/upload', methods=['POST'])
+def players_upload():
+    db.import_players(
+        Players.from_csv(request.files['players.csv']), delete=True)
+    flash("Players imported.")
+    return redirect(url_for('players'))
 
 
 @app.teardown_appcontext

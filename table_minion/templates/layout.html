@@ -4,14 +4,17 @@
 <div class=page>
   {% block pagetitle %}<h1>Table Minion</h1>{% endblock %}
   <div class=metanav>
+    <a href="{{ url_for('games') }}">games</a>
+    <a href="{{ url_for('players') }}">players</a>
+    {# <a href="{{ url_for('tables') }}">tables</a> #}
   {% if not session.logged_in %}
     <a href="{{ url_for('index') }}">log in</a>
   {% else %}
     <a href="{{ url_for('index') }}">log out</a>
   {% endif %}
   </div>
-  {% for message in get_flashed_messages() %}
-    <div class=flash>{{ message }}</div>
+  {% for category, message in get_flashed_messages(with_categories=True) %}
+  <div class="flash {{ category }}">{{ message }}</div>
   {% endfor %}
   {% block body %}{% endblock %}
 </div>
