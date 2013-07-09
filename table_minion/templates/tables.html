@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block pagetitle %}<h1>Tables</h1>{% endblock %}
+{% block body %}
+  <table class="players" border=1 cellspacing=0 cellpadding=2>
+    <tr>
+      <th>slot</th>
+      <th colspan={{ max_tables }}>tables</th>
+  {% for slot in slots %}
+    <tr>
+      <td><a href="{{ url_for('game', slot=slot) }}">{{ slot }}</a></td>
+    {% for table in tables[slot] %}
+      <td>
+        <ul>
+          <li><em>GM: {{player_name(table['gm'])}}</em></li>
+        {% for player in table['players'] %}
+          <li>{{player_name(player)}}</li>
+        {% endfor %}
+        </ul>
+      </td>
+    {% endfor %}
+    </tr>
+  {% endfor %}
+  </table>
+  </ul>
+
+  <hr/>
+
+  <form action="{{ url_for('tables_lay_tables') }}" method="POST">
+    <strong>Warning! Clicking this button will obliterate existing data.</strong>
+    <br/>
+    <input type="submit" value="Lay tables">
+  </form>
+{% endblock %}

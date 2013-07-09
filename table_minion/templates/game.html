@@ -22,6 +22,8 @@
   {% endfor %}
   </ul>
 
+  <hr/>
+
   <form action="{{ url_for('game_lay_tables', slot=game.slot) }}" method="POST">
     <strong>Warning! Clicking this button will obliterate existing data.</strong>
     <br/>

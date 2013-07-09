@@ -111,6 +111,8 @@ class Tables(object):
                 for t in self.tables])
 
     def validate_player(self, player):
+        # TODO: Fix this.
+        return True
         return sum(1 for slot in self.slots if slot in player.slots) <= 1
 
     def arrange_players(self):
@@ -128,7 +130,7 @@ class Tables(object):
 
     def lay_game_tables(self, slot):
         self.game_tables[slot] = GameTables(
-            slot, self.games.games[slot], self.slotted_players[slot])
+            slot, self.games[slot], self.slotted_players[slot])
 
     def lay_tables(self):
         self.game_tables = {}

@@ -185,7 +185,7 @@ def get_game(slot):
     return Game(**dict(zip(row.keys(), row)))
 
 
-def set_game_tables(slot, game_tables):
+def set_game_tables(slot, game_tables, commit=True):
     query_db('DELETE FROM game_tables WHERE slot=?;', (slot,))
     for game_table in game_tables:
         data = {
@@ -195,7 +195,8 @@ def set_game_tables(slot, game_tables):
         query_db(
             'INSERT INTO game_tables (slot, data) VALUES (?, ?);',
             (slot, json.dumps(data)))
-    commit_db()
+    if commit:
+        commit_db()
 
 
 def get_game_tables(slot):
@@ -207,3 +208,22 @@ def get_game_tables(slot):
         players = [get_player(name) for name in data['players']]
         game_tables.append(GameTable(slot, gm, players))
     return game_tables
+
+
+def set_all_game_tables(tables):
+    query_db('DELETE FROM game_tables;')
+    for slot, game_tables in tables.game_tables.iteritems():
+        set_game_tables(slot, game_tables.tables, commit=False)
+    commit_db()
+
+
+def get_all_game_tables():
+    rows = query_db('SELECT slot, data FROM game_tables;')
+    tables = {}
+    for row in rows:
+        data = json.loads(row['data'])
+        gm = get_player(data['gm']) if data['gm'] else None
+        players = [get_player(name) for name in data['players']]
+        game_tables = tables.setdefault(row['slot'], [])
+        game_tables.append(GameTable(row['slot'], gm, players))
+    return tables

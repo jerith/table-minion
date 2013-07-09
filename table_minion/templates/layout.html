@@ -6,7 +6,7 @@
   <div class=metanav>
     <a href="{{ url_for('games') }}">games</a>
     <a href="{{ url_for('players') }}">players</a>
-    {# <a href="{{ url_for('tables') }}">tables</a> #}
+    <a href="{{ url_for('tables') }}">tables</a>
   {% if not session.logged_in %}
     <a href="{{ url_for('index') }}">log in</a>
   {% else %}

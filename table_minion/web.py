@@ -92,6 +92,28 @@ def players_upload():
     return redirect(url_for('players'))
 
 
+@app.route('/tables/')
+def tables():
+    slots = sorted(db.get_games().slots)
+    tables = db.get_all_game_tables()
+    max_tables = max(len(gt) for gt in tables.values()) if tables else 0
+    return render_template(
+        'tables.html', slots=slots, tables=tables, max_tables=max_tables,
+        player_name=player_name)
+
+
+@app.route('/tables/lay_tables', methods=['POST'])
+def tables_lay_tables():
+    from table_minion.generate_tables import Tables
+    players = db.get_players()
+    games = db.get_games()
+    tables = Tables(games, players, games.slots)
+    db.set_all_game_tables(tables)
+
+    flash("Tables laid.")
+    return redirect(url_for('tables'))
+
+
 @app.teardown_appcontext
 def close_connection(exception):
     db.close_db()
