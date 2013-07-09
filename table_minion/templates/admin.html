@@ -6,8 +6,8 @@
   </ul>
 
   <hr>
-  <form action="/create_database" method="POST">
-    <strong>Warning! Clicking this button will obliterate existing data.</strong>
+  <form action="{{ url_for('create_database') }}" method="POST">
+    <input type="checkbox" name="delete"><string>Check this box to obliterate all existing data.</strong>
     <br/>
     <input type="submit" value="Create database">
   </form>

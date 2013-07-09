@@ -3,6 +3,7 @@ from flask import Flask, request, url_for, redirect, flash, render_template
 from table_minion import db
 from table_minion.players import Players, player_name
 from table_minion.games import Games
+from table_minion.generate_tables import Tables
 
 
 app = Flask(__name__)
@@ -20,20 +21,8 @@ def admin():
 
 
 @app.route('/create_database', methods=['POST'])
-def reset_data():
-    db.init_db(clear=True)
-    from table_minion.tests.utils import make_games, make_players
-
-    db.import_games(make_games(['1A', '1B']))
-
-    db.import_players(make_players([
-        (10, 'Alpha', None, {'1A': 'P'}),
-        (1, 'Able', None, {'1A': 'X'}),
-        (2, 'Ares', 'Olympians', {'1A': 'P'}),
-        (10, 'Bravo', None, {'1B': 'P'}),
-        (2, 'Baker', None, {'1B': 'X'}),
-    ]))
-
+def create_database():
+    db.init_db(clear=request.form.get('delete', False))
     flash("Database created.")
     return redirect(url_for('admin'))
 
@@ -61,7 +50,6 @@ def game(slot):
 
 @app.route('/games/<slot>/lay_tables', methods=['POST'])
 def game_lay_tables(slot):
-    from table_minion.generate_tables import Tables
     players = db.get_players()
     games = db.get_games()
     tables = Tables(games, players, [slot])
@@ -104,7 +92,6 @@ def tables():
 
 @app.route('/tables/lay_tables', methods=['POST'])
 def tables_lay_tables():
-    from table_minion.generate_tables import Tables
     players = db.get_players()
     games = db.get_games()
     tables = Tables(games, players, games.slots)
