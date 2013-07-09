@@ -19,6 +19,10 @@
   {% endfor %}
   </table>
   </ul>
+
+  <hr/>
+  <a href="{{ url_for('players_csv') }}">Download players as CSV</a>
+
   <hr/>
   <form action="{{ url_for('players_upload') }}" method="post" enctype="multipart/form-data">
     <strong>Warning! Importing players will obliterate existing player data.</strong>

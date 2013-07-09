@@ -1,23 +1,22 @@
 from unittest import TestCase
 from StringIO import StringIO
 
-from table_minion.games import Games
+from table_minion.games import Game, Games
 
 
-def get_games():
-    games_file = StringIO('\n'.join([
-                'slot,name,author,system,blurb,min_players,max_players',
-                '1A,Aargh!,Alice Able,SillyDice,Camelot is a silly place.,,',
-                '1B,Business,Bob Bobson,SrsBsns,Make some RoI.,5,7',
-                '2A,Alien Attack,Axl Rose,Cthulhu,Giant robots!,,',
-                '2B,Bouncing Babies,Brian May,nWoD,Not a very good idea.,,',
-                ]))
-    return Games.from_csv(games_file)
+GAMES_CSV = '\r\n'.join([
+    'slot,name,author,system,blurb,min_players,max_players',
+    '1A,Aargh!,Alice Able,SillyDice,Camelot is a silly place.,,',
+    '1B,Bouncing Babies,Brian May,nWoD,Not a very good idea.,5,7',
+    '2A,Alien Attack,Axl Rose,Cthulhu,Giant robots!,,',
+    '2B,Business,Bob Bobson,SrsBsns,Make some RoI.,,',
+    '',
+])
 
 
 class TestGames(TestCase):
     def test_from_csv(self):
-        games = get_games()
+        games = Games.from_csv(StringIO(GAMES_CSV))
 
         self.assertEqual('1A', games['1A'].slot)
         self.assertEqual('Aargh!', games['1A'].name)
@@ -29,3 +28,21 @@ class TestGames(TestCase):
 
         self.assertEqual(5, games['1B'].min_players)
         self.assertEqual(7, games['1B'].max_players)
+
+    def test_to_csv(self):
+        games = Games({
+            '1A': Game(
+                '1A', 'Aargh!', 'Alice Able', 'SillyDice',
+                'Camelot is a silly place.'),
+            '1B': Game(
+                '1B', 'Bouncing Babies', 'Brian May', 'nWoD',
+                'Not a very good idea.', 5, 7),
+            '2A': Game(
+                '2A', 'Alien Attack', 'Axl Rose', 'Cthulhu', 'Giant robots!'),
+            '2B': Game(
+                '2B', 'Business', 'Bob Bobson', 'SrsBsns', 'Make some RoI.'),
+        })
+        games_csv = StringIO()
+        games.to_csv(games_csv)
+        self.assertEqual(
+            games_csv.getvalue(), GAMES_CSV.replace(',,\r', ',4,6\r'))

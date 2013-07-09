@@ -5,14 +5,14 @@ import csv
 
 class Game(object):
     def __init__(self, slot, name, author, system, blurb,
-                 max_players=6, min_players=4):
+                 min_players=4, max_players=6):
         self.slot = slot
         self.name = name
         self.author = author
         self.system = system
         self.blurb = blurb
-        self.max_players = max_players
         self.min_players = min_players
+        self.max_players = max_players
 
     def player_count(self):
         if self.min_players == self.max_players:
@@ -60,6 +60,23 @@ class Games(object):
                 game_dict['min_players'] = int(min_players)
             games.append(game_dict)
         return cls.from_dicts(games)
+
+    def to_csv(self, csv_file):
+        fields = [
+            'slot', 'name', 'author', 'system', 'blurb', 'min_players',
+            'max_players']
+        writer = csv.DictWriter(csv_file, fields)
+        writer.writerow(dict(zip(fields, fields)))
+        for slot, game in sorted(self.games.items()):
+            writer.writerow({
+                'slot': game.slot,
+                'name': game.name,
+                'author': game.author,
+                'system': game.system,
+                'blurb': game.blurb,
+                'min_players': game.min_players,
+                'max_players': game.max_players,
+            })
 
     def __str__(self):
         return '<Games:\n%s\n>' % '\n'.join([

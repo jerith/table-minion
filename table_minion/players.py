@@ -40,6 +40,12 @@ class Players(object):
     def __iter__(self):
         return iter(self.players)
 
+    def get_slots(self):
+        slots = set()
+        for player in self.players:
+            slots.update(player.slots.keys())
+        return sorted(slots)
+
     @classmethod
     def from_dicts(cls, player_dicts):
         return cls([Player(**pdict) for pdict in player_dicts])

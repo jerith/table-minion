@@ -1,4 +1,7 @@
-from flask import Flask, request, url_for, redirect, flash, render_template
+from StringIO import StringIO
+
+from flask import (
+    Flask, request, url_for, redirect, flash, render_template, make_response)
 
 from table_minion import db
 from table_minion.players import Players, player_name
@@ -31,6 +34,15 @@ def create_database():
 def games():
     games = sorted(db.get_games(), key=lambda g: g.slot)
     return render_template('games.html', games=games)
+
+
+@app.route('/games/games.csv')
+def games_csv():
+    games_csv = StringIO()
+    db.get_games().to_csv(games_csv)
+    resp = make_response(games_csv.getvalue())
+    resp.headers['Content-Type'] = 'text/csv'
+    return resp
 
 
 @app.route('/games/upload', methods=['POST'])
@@ -70,6 +82,17 @@ def players():
             ', '.join(sorted(player_only_slots)),), 'error')
         slots = sorted(slots + list(player_only_slots))
     return render_template('players.html', slots=slots, players=players)
+
+
+@app.route('/players/players.csv')
+def players_csv():
+    players = db.get_players()
+    slots = players.get_slots()
+    players_csv = StringIO()
+    players.to_csv(slots, players_csv)
+    resp = make_response(players_csv.getvalue())
+    resp.headers['Content-Type'] = 'text/csv'
+    return resp
 
 
 @app.route('/players/upload', methods=['POST'])
