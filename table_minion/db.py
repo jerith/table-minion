@@ -61,6 +61,7 @@ def open_db(app):
     if db is None:
         db = g._database = sqlite3.connect(app.config['DATABASE'])
         db.row_factory = sqlite3.Row
+    return db
 
 
 def close_db():
@@ -70,7 +71,7 @@ def close_db():
 
 
 def init_db(app, clear=False):
-    db = get_db(app)
+    db = sqlite3.connect(app.config['DATABASE'])
     if clear:
         db.cursor().executescript(CLEAR_SQL)
     db.cursor().executescript(SCHEMA_SQL)

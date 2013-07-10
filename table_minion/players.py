@@ -24,6 +24,15 @@ class Player(object):
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other):
+        if not isinstance(other, Player):
+            return False
+        return all([
+            self.name == other.name,
+            self.team == other.team,
+            self.slots == other.slots,
+        ])
+
 
 def player_name(player):
     if player is None:
