@@ -48,6 +48,12 @@ class BaseWebTestCase(TestCase):
                     })
         return tables
 
+    def assert_table_values(self, table, expected):
+        self.assertEqual(expected, [
+            [cell['value'].strip() for cell in row['cells']]
+            for row in table['rows']
+        ])
+
     @contextmanager
     def db_context(self):
         with web.app.test_request_context():
@@ -61,6 +67,13 @@ class BaseWebTestCase(TestCase):
             data.update(extra_data)
         return self.client.post(url, data=data)
 
+    def make_game(self, slot, **kw):
+        kw.setdefault('name', 'Game %s' % (slot,))
+        kw.setdefault('author', 'Author %s' % (slot,))
+        kw.setdefault('system', 'System %s' % (slot,))
+        kw.setdefault('blurb', 'Blurb %s' % (slot,))
+        return Game(slot, **kw)
+
 
 class TestWebPlayers(BaseWebTestCase):
     def make_game(self, slot):
@@ -73,35 +86,30 @@ class TestWebPlayers(BaseWebTestCase):
         self.assertEqual(response.location, 'http://localhost/players/')
         return response
 
-    def assert_table_values(self, table, expected):
-        self.assertEqual(expected, [
-            [cell['value'].strip() for cell in row['cells']]
-            for row in table['rows']
-        ])
-
     def assert_db_players(self, expected):
         with self.db_context():
             self.assertEqual(expected, list(db.get_players()))
 
     def test_no_players(self):
-        [player_table] = self.parse_tables(self.client.get('/players/'))
-        self.assert_table_values(player_table, [
+        self.assert_db_players([])
+        [players_table] = self.parse_tables(self.client.get('/players/'))
+        self.assert_table_values(players_table, [
             ['name', 'team'],
         ])
 
     def test_no_players_one_game_slot(self):
         with self.db_context():
             db.insert_game(self.make_game('1A'))
-        [player_table] = self.parse_tables(self.client.get('/players/'))
-        self.assert_table_values(player_table, [
+        [players_table] = self.parse_tables(self.client.get('/players/'))
+        self.assert_table_values(players_table, [
             ['name', 'team', '1A'],
         ])
 
     def test_one_player_no_slots(self):
         with self.db_context():
             db.insert_player(Player('Gary Gygax', 'TSR', {}))
-        [player_table] = self.parse_tables(self.client.get('/players/'))
-        self.assert_table_values(player_table, [
+        [players_table] = self.parse_tables(self.client.get('/players/'))
+        self.assert_table_values(players_table, [
             ['name', 'team'],
             ['Gary Gygax', 'TSR'],
         ])
@@ -110,8 +118,8 @@ class TestWebPlayers(BaseWebTestCase):
         with self.db_context():
             db.insert_game(self.make_game('1A'))
             db.insert_player(Player('Gary Gygax', 'TSR', {}))
-        [player_table] = self.parse_tables(self.client.get('/players/'))
-        self.assert_table_values(player_table, [
+        [players_table] = self.parse_tables(self.client.get('/players/'))
+        self.assert_table_values(players_table, [
             ['name', 'team', '1A'],
             ['Gary Gygax', 'TSR', ''],
         ])
@@ -119,8 +127,8 @@ class TestWebPlayers(BaseWebTestCase):
     def test_one_player_one_slot(self):
         with self.db_context():
             db.insert_player(Player('Gary Gygax', 'TSR', {'1A': 'G'}))
-        [player_table] = self.parse_tables(self.client.get('/players/'))
-        self.assert_table_values(player_table, [
+        [players_table] = self.parse_tables(self.client.get('/players/'))
+        self.assert_table_values(players_table, [
             ['name', 'team', '1A'],
             ['Gary Gygax', 'TSR', 'G'],
         ])
@@ -129,8 +137,8 @@ class TestWebPlayers(BaseWebTestCase):
         with self.db_context():
             db.insert_player(Player('Gary Gygax', 'TSR', {'1A': 'G'}))
             db.insert_player(Player('Dave Arneson', 'TSR', {'1B': 'G'}))
-        [player_table] = self.parse_tables(self.client.get('/players/'))
-        self.assert_table_values(player_table, [
+        [players_table] = self.parse_tables(self.client.get('/players/'))
+        self.assert_table_values(players_table, [
             ['name', 'team', '1A', '1B'],
             ['Gary Gygax', 'TSR', 'G', ''],
             ['Dave Arneson', 'TSR', '', 'G'],
@@ -155,3 +163,113 @@ class TestWebPlayers(BaseWebTestCase):
             Player('Gary Gygax', 'TSR', {'1A': 'G'}),
             Player('Dave Arneson', 'TSR', {'1B': 'G'}),
         ])
+
+
+class TestWebGames(BaseWebTestCase):
+    def slot_link(self, slot):
+        return '<a href="/games/%s/">%s</a>' % (slot, slot)
+
+    def upload_games(self, csv_data):
+        response = self.post_file(
+            '/games/upload', 'games.csv', StringIO(csv_data))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/games/')
+        return response
+
+    def assert_db_games(self, expected):
+        with self.db_context():
+            self.assertEqual(expected, list(db.get_games()))
+
+    def test_no_games(self):
+        self.assert_db_games([])
+        [games_table] = self.parse_tables(self.client.get('/games/'))
+        self.assert_table_values(games_table, [
+            ['slot', 'name', 'author', 'system', 'players'],
+        ])
+
+    def test_one_game_4_to_6_players(self):
+        with self.db_context():
+            db.insert_game(self.make_game('1A'))
+        [games_table] = self.parse_tables(self.client.get('/games/'))
+        self.assert_table_values(games_table, [
+            ['slot', 'name', 'author', 'system', 'players'],
+            [self.slot_link('1A'), 'Game 1A', 'Author 1A', 'System 1A', '4-6'],
+        ])
+
+    def test_one_game_5_players(self):
+        with self.db_context():
+            db.insert_game(self.make_game('1A', min_players=5, max_players=5))
+        [games_table] = self.parse_tables(self.client.get('/games/'))
+        self.assert_table_values(games_table, [
+            ['slot', 'name', 'author', 'system', 'players'],
+            [self.slot_link('1A'), 'Game 1A', 'Author 1A', 'System 1A', '5'],
+        ])
+
+    def test_two_games(self):
+        with self.db_context():
+            db.insert_game(self.make_game('1A'))
+            db.insert_game(self.make_game('1B', min_players=5, max_players=5))
+        [games_table] = self.parse_tables(self.client.get('/games/'))
+        self.assert_table_values(games_table, [
+            ['slot', 'name', 'author', 'system', 'players'],
+            [self.slot_link('1A'), 'Game 1A', 'Author 1A', 'System 1A', '4-6'],
+            [self.slot_link('1B'), 'Game 1B', 'Author 1B', 'System 1B', '5'],
+        ])
+
+    def test_import_one_game(self):
+        self.assert_db_games([])
+        self.upload_games('\n'.join([
+            'slot,name,author,system,blurb,min_players,max_players',
+            '1A,Game 1A,Author 1A,System 1A,Blurb 1A,4,6',
+        ]))
+        self.assert_db_games([self.make_game('1A')])
+
+    def test_import_two_games(self):
+        self.assert_db_games([])
+        self.upload_games('\n'.join([
+            'slot,name,author,system,blurb,min_players,max_players',
+            '1A,Game 1A,Author 1A,System 1A,Blurb 1A,4,6',
+            '1B,Game 1B,Author 1B,System 1B,Blurb 1B,5,5',
+        ]))
+        self.assert_db_games([
+            self.make_game('1A'),
+            self.make_game('1B', min_players=5, max_players=5),
+        ])
+
+
+class TestWebGame(BaseWebTestCase):
+    def assert_response_contains(self, response, text):
+        self.assertTrue(
+            text in response.data, '%r not found in response.' % (text,))
+
+    def test_no_game(self):
+        response = self.client.get('/games/1A/')
+        self.assertEqual(response.status_code, 404)
+
+    def test_game_4_to_6_players_no_tables(self):
+        with self.db_context():
+            db.insert_game(self.make_game('1A'))
+        response = self.client.get('/games/1A/')
+        self.assertEqual(response.status_code, 200)
+        self.assert_response_contains(response, '1A: Game 1A')
+        self.assert_response_contains(response, 'Author: Author 1A')
+        self.assert_response_contains(response, 'System: System 1A')
+        self.assert_response_contains(response, 'Blurb: Blurb 1A')
+        self.assert_response_contains(response, 'Players: 4-6')
+        self.assert_response_contains(response, 'No tables found')
+        self.assertEqual([], self.parse_tables(response))
+
+    def test_game_5_players_no_tables(self):
+        with self.db_context():
+            db.insert_game(self.make_game('1A', min_players=5, max_players=5))
+        response = self.client.get('/games/1A/')
+        self.assertEqual(response.status_code, 200)
+        self.assert_response_contains(response, '1A: Game 1A')
+        self.assert_response_contains(response, 'Author: Author 1A')
+        self.assert_response_contains(response, 'System: System 1A')
+        self.assert_response_contains(response, 'Blurb: Blurb 1A')
+        self.assert_response_contains(response, 'Players: 5')
+        self.assert_response_contains(response, 'No tables found')
+        self.assertEqual([], self.parse_tables(response))
+
+    # TODO: Games with tables.

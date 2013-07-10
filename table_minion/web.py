@@ -1,7 +1,8 @@
 from StringIO import StringIO
 
 from flask import (
-    Flask, request, url_for, redirect, flash, render_template, make_response)
+    Flask, request, abort, url_for, redirect, flash, render_template,
+    make_response)
 
 from table_minion import db
 from table_minion.players import Players, player_name
@@ -65,7 +66,10 @@ def games_upload():
 
 @app.route('/games/<slot>/')
 def game(slot):
-    game = db.get_game(slot)
+    try:
+        game = db.get_game(slot)
+    except db.NotFound:
+        abort(404)
     tables = db.get_game_tables(slot)
     return render_template(
         'game.html', game=game, tables=tables, player_name=player_name)

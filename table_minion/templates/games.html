@@ -8,6 +8,7 @@
       <th>author</th>
       <th>system</th>
       <th>players</th>
+    </tr>
   {% for game in games %}
     <tr>
       <td><a href="{{ url_for('game', slot=game.slot) }}">{{ game.slot }}</a></td>

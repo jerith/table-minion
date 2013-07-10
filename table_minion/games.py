@@ -27,6 +27,19 @@ class Game(object):
     def __repr__(self):
         return str(self)
 
+    def __eq__(self, other):
+        if not isinstance(other, Game):
+            return False
+        return all([
+            self.slot == other.slot,
+            self.name == other.name,
+            self.author == other.author,
+            self.system == other.system,
+            self.blurb == other.blurb,
+            self.min_players == other.min_players,
+            self.max_players == other.max_players,
+        ])
+
 
 class Games(object):
     def __init__(self, games):

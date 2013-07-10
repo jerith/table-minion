@@ -52,6 +52,10 @@ DROP TABLE IF EXISTS game_tables;
 """
 
 
+class NotFound(Exception):
+    pass
+
+
 def get_db():
     return g._database
 
@@ -143,6 +147,9 @@ def get_player(name):
         WHERE p.name=?;
         ''', (name,))
 
+    if not rows:
+        raise NotFound(name)
+
     slots = dict([
         (row['slot'], row['registration_type']) for row in rows if row['slot']
     ])
@@ -186,6 +193,9 @@ def get_game(slot):
         SELECT slot, name, author, system, blurb, min_players, max_players
         FROM games WHERE slot=?;
         ''', (slot,), one=True)
+    if row is None:
+        raise NotFound(slot)
+
     return Game(**dict(zip(row.keys(), row)))
 
 
