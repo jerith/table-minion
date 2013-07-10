@@ -24,10 +24,10 @@
 
   <hr/>
 
-  <form action="{{ url_for('game_lay_tables', slot=game.slot) }}" method="POST">
+  <form action="{{ url_for('game_generate_tables', slot=game.slot) }}" method="POST">
     <strong>Warning! Clicking this button will obliterate existing data.</strong>
     <br/>
-    <input type="submit" value="Lay tables">
+    <input type="submit" value="Generate tables">
   </form>
 
 {% endblock %}

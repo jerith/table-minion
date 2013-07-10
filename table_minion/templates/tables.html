@@ -1,14 +1,14 @@
 {% extends "layout.html" %}
 {% block pagetitle %}<h1>Tables</h1>{% endblock %}
 {% block body %}
-  <table class="players" border=1 cellspacing=0 cellpadding=2>
+  <table class="tables" border=1 cellspacing=0 cellpadding=2>
     <tr>
       <th>slot</th>
-      <th colspan={{ max_tables }}>tables</th>
-  {% for slot in slots %}
+      <th colspan={{ game_tables.max_tables_per_slot() }}>tables</th>
+  {% for slot in game_tables.slots %}
     <tr>
       <td><a href="{{ url_for('game', slot=slot) }}">{{ slot }}</a></td>
-    {% for table in tables[slot] %}
+    {% for table in game_tables[slot] %}
       <td>
         <ul>
           <li><em>GM: {{player_name(table['gm'])}}</em></li>
@@ -25,9 +25,9 @@
 
   <hr/>
 
-  <form action="{{ url_for('tables_lay_tables') }}" method="POST">
+  <form action="{{ url_for('tables_generate_tables') }}" method="POST">
     <strong>Warning! Clicking this button will obliterate existing data.</strong>
     <br/>
-    <input type="submit" value="Lay tables">
+    <input type="submit" value="Generate tables">
   </form>
 {% endblock %}

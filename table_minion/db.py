@@ -5,7 +5,7 @@ from flask import g
 
 from table_minion.players import Player, Players
 from table_minion.games import Game, Games
-from table_minion.generate_tables import GameTable
+from table_minion.game_tables import GameTables
 
 
 # TODO: Something less horrible than this.
@@ -139,6 +139,25 @@ def get_players():
     return Players.from_dicts(players.values())
 
 
+def get_players_for_game(slot):
+    rows = query_db('''
+        SELECT p.id AS id, name, team, slot, registration_type
+        FROM players AS p
+        LEFT JOIN player_registrations AS pr ON p.id=pr.player
+        WHERE slot=?;
+        ''', (slot,))
+    players = {}
+    for row in rows:
+        player_dict = players.setdefault(row['id'], {
+            'name': row['name'],
+            'team': row['team'],
+            'slots': {},
+        })
+        if row['slot'] is not None:
+            player_dict['slots'][row['slot']] = row['registration_type']
+    return Players.from_dicts(players.values())
+
+
 def get_player(name):
     rows = query_db('''
         SELECT p.id AS id, name, team, slot, registration_type
@@ -213,31 +232,51 @@ def set_game_tables(slot, game_tables, commit=True):
         commit_db()
 
 
-def get_game_tables(slot):
+def get_game_tables(slot, game=None, players=None):
+    if game is None:
+        game = get_game(slot)
+    games = {slot: game}
+    if players is None:
+        players = get_players()
+
     rows = query_db('SELECT data FROM game_tables WHERE slot=?;', (slot,))
-    game_tables = []
+    game_table_dicts = []
     for row in rows:
         data = json.loads(row['data'])
-        gm = get_player(data['gm']) if data['gm'] else None
-        players = [get_player(name) for name in data['players']]
-        game_tables.append(GameTable(slot, gm, players))
-    return game_tables
+        game_table_dicts.append({
+            'slot': slot,
+            'gm': data['gm'],
+            'players': data['players'],
+        })
+    return GameTables.from_dicts(games, players, game_table_dicts)[slot]
 
 
-def set_all_game_tables(tables):
+def set_all_game_tables(game_tables):
     query_db('DELETE FROM game_tables;')
-    for slot, game_tables in tables.game_tables.iteritems():
-        set_game_tables(slot, game_tables.tables, commit=False)
+    for game_table in game_tables.all_tables():
+        data = {
+            'gm': game_table.gm.name if game_table.gm else None,
+            'players': [p.name for p in game_table.players],
+        }
+        query_db(
+            'INSERT INTO game_tables (slot, data) VALUES (?, ?);',
+            (game_table.slot, json.dumps(data)))
     commit_db()
 
 
-def get_all_game_tables():
+def get_all_game_tables(games=None, players=None):
+    if games is None:
+        games = get_games()
+    if players is None:
+        players = get_players()
+
     rows = query_db('SELECT slot, data FROM game_tables;')
-    tables = {}
+    game_table_dicts = []
     for row in rows:
         data = json.loads(row['data'])
-        gm = get_player(data['gm']) if data['gm'] else None
-        players = [get_player(name) for name in data['players']]
-        game_tables = tables.setdefault(row['slot'], [])
-        game_tables.append(GameTable(row['slot'], gm, players))
-    return tables
+        game_table_dicts.append({
+            'slot': row['slot'],
+            'gm': data['gm'],
+            'players': data['players'],
+        })
+    return GameTables.from_dicts(games, players, game_table_dicts)

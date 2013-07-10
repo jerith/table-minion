@@ -15,7 +15,8 @@ class Player(object):
         self.slots = slots
 
     def _format_slots(self):
-        return list(sorted('%s:%s' % item for item in self.slots.iteritems()))
+        return ', '.join(sorted(
+            '%s:%s' % item for item in self.slots.iteritems()))
 
     def __str__(self):
         return '<Player %s (%s) %s>' % (
@@ -54,6 +55,14 @@ class Players(object):
         for player in self.players:
             slots.update(player.slots.keys())
         return sorted(slots)
+
+    def get_player(self, name):
+        if name is None:
+            return None
+        for player in self.players:
+            if player.name == name:
+                return player
+        raise ValueError('No player named %r' % (name,))
 
     @classmethod
     def from_dicts(cls, player_dicts):

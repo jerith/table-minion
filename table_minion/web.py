@@ -1,3 +1,5 @@
+# -*- test-case-name: table_minion.tests.test_web -*-
+
 from StringIO import StringIO
 
 from flask import (
@@ -7,7 +9,8 @@ from flask import (
 from table_minion import db
 from table_minion.players import Players, player_name
 from table_minion.games import Games
-from table_minion.generate_tables import Tables
+from table_minion.generate_tables import (
+    GameTablesGenerator, AllTablesGenerator)
 
 
 app = Flask('table_minion')
@@ -70,17 +73,18 @@ def game(slot):
         game = db.get_game(slot)
     except db.NotFound:
         abort(404)
-    tables = db.get_game_tables(slot)
+    game_tables = db.get_game_tables(slot)
     return render_template(
-        'game.html', game=game, tables=tables, player_name=player_name)
+        'game.html', game=game, tables=game_tables, player_name=player_name)
 
 
-@app.route('/games/<slot>/lay_tables', methods=['POST'])
-def game_lay_tables(slot):
-    players = db.get_players()
-    games = db.get_games()
-    tables = Tables(games, players, [slot])
-    db.set_game_tables(slot, tables.game_tables[slot].tables)
+@app.route('/games/<slot>/generate_tables', methods=['POST'])
+def game_generate_tables(slot):
+    game = db.get_game(slot)
+    players = db.get_players_for_game(slot)
+    generator = GameTablesGenerator(game, players)
+    game_tables = generator.generate_tables()
+    db.set_game_tables(slot, game_tables)
 
     flash("Tables laid.")
     return redirect(url_for('game', slot=slot))
@@ -120,20 +124,18 @@ def players_upload():
 
 @app.route('/tables/')
 def tables():
-    slots = sorted(db.get_games().slots)
-    tables = db.get_all_game_tables()
-    max_tables = max(len(gt) for gt in tables.values()) if tables else 0
+    game_tables = db.get_all_game_tables()
     return render_template(
-        'tables.html', slots=slots, tables=tables, max_tables=max_tables,
-        player_name=player_name)
+        'tables.html', game_tables=game_tables, player_name=player_name)
 
 
-@app.route('/tables/lay_tables', methods=['POST'])
-def tables_lay_tables():
+@app.route('/tables/generate_tables', methods=['POST'])
+def tables_generate_tables():
     players = db.get_players()
     games = db.get_games()
-    tables = Tables(games, players, games.slots)
-    db.set_all_game_tables(tables)
+    generator = AllTablesGenerator(games, players)
+    game_tables = generator.generate_tables()
+    db.set_all_game_tables(game_tables)
 
     flash("Tables laid.")
     return redirect(url_for('tables'))
