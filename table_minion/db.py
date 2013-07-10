@@ -53,11 +53,14 @@ DROP TABLE IF EXISTS game_tables;
 
 
 def get_db():
+    return g._database
+
+
+def open_db(app):
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
+        db = g._database = sqlite3.connect(app.config['DATABASE'])
         db.row_factory = sqlite3.Row
-    return db
 
 
 def close_db():
@@ -66,8 +69,8 @@ def close_db():
         db.close()
 
 
-def init_db(clear=False):
-    db = get_db()
+def init_db(app, clear=False):
+    db = get_db(app)
     if clear:
         db.cursor().executescript(CLEAR_SQL)
     db.cursor().executescript(SCHEMA_SQL)

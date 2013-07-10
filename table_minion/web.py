@@ -9,8 +9,19 @@ from table_minion.games import Games
 from table_minion.generate_tables import Tables
 
 
-app = Flask(__name__)
-app.secret_key = 'SEKRIT'
+app = Flask('table_minion')
+app.config.from_object('table_minion.settings')
+app.config.from_envvar('TABLE_MINION_SETTINGS', silent=True)
+
+
+@app.before_request
+def before_request():
+    db.open_db(app)
+
+
+@app.teardown_request
+def teardown_request(exception):
+    db.close_db()
 
 
 @app.route('/')
@@ -122,11 +133,6 @@ def tables_lay_tables():
 
     flash("Tables laid.")
     return redirect(url_for('tables'))
-
-
-@app.teardown_appcontext
-def close_connection(exception):
-    db.close_db()
 
 
 if __name__ == '__main__':
