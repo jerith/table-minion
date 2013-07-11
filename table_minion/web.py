@@ -145,7 +145,7 @@ def tables_upload():
     games = db.get_games()
     players = db.get_players()
     game_tables = GameTables.from_csv(
-        games, players, request.files['players.csv'])
+        games, players, request.files['tables.csv'])
     db.set_all_game_tables(game_tables)
     flash("Tables imported.")
     return redirect(url_for('tables'))

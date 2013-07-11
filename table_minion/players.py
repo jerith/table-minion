@@ -57,7 +57,8 @@ class Players(object):
         return sorted(slots)
 
     def get_player(self, name):
-        if name is None:
+        if not name:
+            # This catches '' and None.
             return None
         for player in self.players:
             if player.name == name:
