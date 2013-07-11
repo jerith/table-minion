@@ -24,10 +24,21 @@
   </ul>
 
   <hr/>
-
   <form action="{{ url_for('tables_generate_tables') }}" method="POST">
-    <strong>Warning! Clicking this button will obliterate existing data.</strong>
+    <strong>Warning! Clicking this button will obliterate table data.</strong>
     <br/>
     <input type="submit" value="Generate tables">
+  </form>
+
+  <hr/>
+  <a href="{{ url_for('tables_csv') }}">Download tables as CSV</a>
+
+  <hr/>
+  <form action="{{ url_for('tables_upload') }}" method="post" enctype="multipart/form-data">
+    <strong>Warning! Importing players will obliterate existing table data.</strong>
+    <br/>
+    <input type="file" name="tables.csv">
+    <br/>
+    <input type="submit" value="Import">
   </form>
 {% endblock %}

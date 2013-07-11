@@ -9,6 +9,7 @@ from flask import (
 from table_minion import db
 from table_minion.players import Players, player_name
 from table_minion.games import Games
+from table_minion.game_tables import GameTables
 from table_minion.generate_tables import (
     GameTablesGenerator, AllTablesGenerator)
 
@@ -127,6 +128,27 @@ def tables():
     game_tables = db.get_all_game_tables()
     return render_template(
         'tables.html', game_tables=game_tables, player_name=player_name)
+
+
+@app.route('/tables/tables.csv')
+def tables_csv():
+    game_tables = db.get_all_game_tables()
+    tables_csv = StringIO()
+    game_tables.to_csv(tables_csv)
+    resp = make_response(tables_csv.getvalue())
+    resp.headers['Content-Type'] = 'text/csv'
+    return resp
+
+
+@app.route('/tables/upload', methods=['POST'])
+def tables_upload():
+    games = db.get_games()
+    players = db.get_players()
+    game_tables = GameTables.from_csv(
+        games, players, request.files['players.csv'])
+    db.set_all_game_tables(game_tables)
+    flash("Tables imported.")
+    return redirect(url_for('tables'))
 
 
 @app.route('/tables/generate_tables', methods=['POST'])
