@@ -18,6 +18,7 @@ class GameTable(object):
 
     def update_warnings(self):
         self.warnings = []
+        self.info = []
         if self.gm is None:
             self.warnings.append('No gm.')
         elif self.gm.slots.get(self.slot, None) not in 'XG':
@@ -37,6 +38,11 @@ class GameTable(object):
             if player.slots.get(self.slot, None) not in 'XP':
                 self.warnings.append('%s not registered as a player.' % (
                     player_name(player)))
+
+        if self.game.min_players <= len(self.players) < self.game.max_players:
+            num = self.game.max_players - len(self.players)
+            self.info.append('%s slot%s available.' % (
+                num, 's' if num > 1 else ''))
 
     def set_game(self, game):
         self.game = game

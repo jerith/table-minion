@@ -8,7 +8,6 @@ from table_minion.game_tables import GameTable, GameTables
 class GameTablesGenerator(object):
     def __init__(self, game, players, game_tables=None):
         self.game = game
-        print game
         self.all_players = players
         self.game_tables = game_tables if game_tables is not None else []
 

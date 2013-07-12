@@ -10,35 +10,39 @@ def make_player_dict(name, team=None, slots=None):
 
 
 class TestGameTable(TestCase):
+    def assert_warnings(self, game_table, warnings, info):
+        self.assertEqual(game_table.warnings, warnings)
+        self.assertEqual(game_table.info, info)
+
     def test_warnings(self):
         [game] = list(make_games(['1A']))
         [gm] = list(make_players([(1, 'GM1A', None, {'1A': 'G'})]))
         [either] = list(make_players([(1, 'E1A', None, {'1A': 'X'})]))
         players = list(make_players([(5, 'P1A', None, {'1A': 'P'})]))
 
-        self.assertEqual(GameTable(game, gm, players).warnings, [])
-        self.assertEqual(GameTable(game, either, players).warnings, [])
-        self.assertEqual(GameTable(game, gm, [either] + players).warnings, [])
-        self.assertEqual(GameTable(game, None, players).warnings, [
-            'No gm.',
-        ])
-        self.assertEqual(GameTable(game, players[0], players).warnings, [
-            'P1A 0 not registered as a GM.',
-        ])
-        self.assertEqual(GameTable(game, gm, [gm] + players).warnings, [
-            'GM1A 0 not registered as a player.',
-        ])
-        self.assertEqual(GameTable(game, gm, players + players).warnings, [
-            '4 players too many.',
-        ])
-        self.assertEqual(GameTable(game, gm, players[:2]).warnings, [
-            '2 players too few.',
-        ])
-        self.assertEqual(GameTable(game, None, [gm] + players[:2]).warnings, [
-            'No gm.',
-            '1 player too few.',
-            'GM1A 0 not registered as a player.',
-        ])
+        self.assert_warnings(GameTable(game, gm, players), [],
+                             ['1 slot available.'])
+        self.assert_warnings(GameTable(game, either, players), [],
+                             ['1 slot available.'])
+        self.assert_warnings(GameTable(game, gm, [either] + players), [], [])
+        self.assert_warnings(GameTable(game, None, players),
+                             ['No gm.'],
+                             ['1 slot available.'])
+        self.assert_warnings(GameTable(game, players[0], players),
+                             ['P1A 0 not registered as a GM.'],
+                             ['1 slot available.'])
+        self.assert_warnings(GameTable(game, gm, [gm] + players),
+                             ['GM1A 0 not registered as a player.'], [])
+        self.assert_warnings(GameTable(game, gm, players + players),
+                             ['4 players too many.'], [])
+        self.assert_warnings(GameTable(game, gm, players[:2]),
+                             ['2 players too few.'], [])
+        self.assert_warnings(GameTable(game, None, [gm] + players[:2]),
+                             [
+                                 'No gm.',
+                                 '1 player too few.',
+                                 'GM1A 0 not registered as a player.',
+                             ], [])
 
 
 class TestGameTables(TestCase):

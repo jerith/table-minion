@@ -23,6 +23,9 @@
         {% for warning in table['warnings'] %}
           <li><em><font color="red">{{ warning }}</font></em></li>
         {% endfor %}
+        {% for info in table['info'] %}
+          <li><em><font color="green">{{ info }}</font></em></li>
+        {% endfor %}
         </ul>
       </td>
     {% endfor %}
