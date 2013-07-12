@@ -5,7 +5,7 @@ import re
 import csv
 
 
-SLOT_RE = re.compile(r'^[0-9]+[A-Z]?$')
+SLOT_RE = re.compile(r'^[0-9]+[A-Za-z]?$')
 
 
 class Player(object):
@@ -71,13 +71,21 @@ class Players(object):
 
     @classmethod
     def from_csv(cls, csv_file):
-        reader = csv.DictReader(csv_file)
-        return cls.from_dicts([{
-            'name': player_dict['name'],
-            'team': player_dict['team'],
-            'slots': dict((k, v) for k, v in player_dict.iteritems()
-                          if v and (SLOT_RE.match(k)))
-        } for player_dict in reader])
+        rows = [line for line in csv_file.readlines() if line.strip()]
+        reader = csv.DictReader(rows)
+        player_dicts = []
+        for row in reader:
+            for field in row.keys():
+                if field and field.lower() in ('name', 'team'):
+                    row[field.lower()] = row[field]
+            player_dict = {
+                'name': row['name'],
+                'team': row['team'],
+                'slots': dict((k, v) for k, v in row.iteritems()
+                              if v and (SLOT_RE.match(k)))
+            }
+            player_dicts.append(player_dict)
+        return cls.from_dicts(player_dicts)
 
     def to_csv(self, slots, csv_file):
         fields = ['name', 'team'] + list(slots)
