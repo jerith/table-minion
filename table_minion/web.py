@@ -41,7 +41,7 @@ def admin():
 
 @app.route('/create_database', methods=['POST'])
 def create_database():
-    db.init_db(clear=request.form.get('delete', False))
+    db.init_db(app, clear=request.form.get('delete', False))
     flash("Database created.")
     return redirect(url_for('admin'))
 
