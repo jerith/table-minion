@@ -141,6 +141,16 @@ def tables_csv():
     return resp
 
 
+@app.route('/tables/table_list.csv')
+def table_list_csv():
+    game_tables = db.get_all_game_tables()
+    table_list_csv = StringIO()
+    game_tables.to_list_csv(table_list_csv)
+    resp = make_response(table_list_csv.getvalue())
+    # resp.headers['Content-Type'] = 'text/csv'
+    return resp
+
+
 @app.route('/tables/upload', methods=['POST'])
 def tables_upload():
     games = db.get_games()

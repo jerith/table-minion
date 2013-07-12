@@ -129,6 +129,16 @@ class GameTables(object):
             writer.writerow(
                 [game_table.slot, gm] + [p.name for p in game_table.players])
 
+    def to_list_csv(self, csv_file):
+        writer = csv.writer(csv_file)
+        for slot, tables in sorted(self.game_tables.items()):
+            for num, game_table in enumerate(tables):
+                writer.writerow(['Table %s (%s)' % (num + 1, slot,)])
+                writer.writerow(['GM: %s' % (player_name(game_table.gm),)])
+                for player in game_table.players:
+                    writer.writerow([player_name(player)])
+                writer.writerow([])
+
     def __str__(self):
         return '<GameTables:\n%s\n>' % '\n'.join([
             '  %s' % game_table for game_table in self.all_tables()])

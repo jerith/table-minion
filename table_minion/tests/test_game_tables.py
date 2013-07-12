@@ -89,3 +89,43 @@ class TestGameTables(TestCase):
             '1B,GM1B 0,P1B 0,P1B 1,P1B 2,P1B 3,P1B 4',
             '',
         ]))
+
+    def test_to_list(self):
+        games = make_games(['1A', '1B'])
+        players = make_players([
+            (1, 'GM1A', None, {'1A': 'G'}),
+            (1, 'GM1B', None, {'1B': 'G'}),
+            (5, 'P1A', None, {'1A': 'P'}),
+            (5, 'P1B', None, {'1B': 'P'}),
+        ])
+
+        game_tables = GameTables(games, players, {
+            '1A': [GameTable(
+                games['1A'], players.get_player('GM1A 0'),
+                [players.get_player('P1A %s' % (i,)) for i in xrange(5)])],
+            '1B': [GameTable(
+                games['1B'], players.get_player('GM1B 0'),
+                [players.get_player('P1B %s' % (i,)) for i in xrange(5)])],
+        })
+
+        table_list_csv = StringIO()
+        game_tables.to_list_csv(table_list_csv)
+        self.assertEqual(table_list_csv.getvalue(), '\r\n'.join([
+            'Table 1 (1A)',
+            'GM: GM1A 0',
+            'P1A 0',
+            'P1A 1',
+            'P1A 2',
+            'P1A 3',
+            'P1A 4',
+            '',
+            'Table 1 (1B)',
+            'GM: GM1B 0',
+            'P1B 0',
+            'P1B 1',
+            'P1B 2',
+            'P1B 3',
+            'P1B 4',
+            '',
+            '',
+        ]))

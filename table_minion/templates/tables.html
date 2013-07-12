@@ -42,6 +42,9 @@
   <a href="{{ url_for('tables_csv') }}">Download tables as CSV</a>
 
   <hr/>
+  <a href="{{ url_for('table_list_csv') }}">Download table list as CSV</a>
+
+  <hr/>
   <form action="{{ url_for('tables_upload') }}" method="post" enctype="multipart/form-data">
     <strong>Warning! Importing players will obliterate existing table data.</strong>
     <br/>
