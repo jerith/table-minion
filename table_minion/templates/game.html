@@ -33,7 +33,9 @@
   </table>
 
   <hr/>
+  <a href="{{ url_for('game_table_list_csv', slot=game.slot) }}">Download table list as CSV</a>
 
+  <hr/>
   <form action="{{ url_for('game_generate_tables', slot=game.slot) }}" method="POST">
     <strong>Warning! Clicking this button will obliterate existing data.</strong>
     <br/>

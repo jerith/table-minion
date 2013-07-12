@@ -80,6 +80,21 @@ def game(slot):
         player_name=player_name, len=len)
 
 
+@app.route('/games/<slot>/table_list.csv')
+def game_table_list_csv(slot):
+    try:
+        game = db.get_game(slot)
+    except db.NotFound:
+        abort(404)
+    players = db.get_players_for_game(slot)
+    game_tables = GameTables([game], players, {slot: db.get_game_tables(slot)})
+    table_list_csv = StringIO()
+    game_tables.to_list_csv(table_list_csv)
+    resp = make_response(table_list_csv.getvalue())
+    resp.headers['Content-Type'] = 'text/csv'
+    return resp
+
+
 @app.route('/games/<slot>/generate_tables', methods=['POST'])
 def game_generate_tables(slot):
     game = db.get_game(slot)
@@ -147,7 +162,7 @@ def table_list_csv():
     table_list_csv = StringIO()
     game_tables.to_list_csv(table_list_csv)
     resp = make_response(table_list_csv.getvalue())
-    # resp.headers['Content-Type'] = 'text/csv'
+    resp.headers['Content-Type'] = 'text/csv'
     return resp
 
 
