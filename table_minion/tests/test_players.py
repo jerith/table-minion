@@ -44,9 +44,9 @@ class TestPlayers(TestCase):
         players = Players.from_csv(StringIO('\n'.join([
             '',
             'Name,Team,First,Last,1a,1b,2a,2b',
-            'Gary Gygax,TSR,Gary,Gygax,G,,G,',
-            'Dave Arneson,TSR,Dave,Arneson,P,,P,',
-            'Jane Bloggs,,Jane,Bloggs,,X,,X',
+            'Gary Gygax,TSR,Gary,Gygax,G,,g,',
+            'Dave Arneson,TSR,Dave,Arneson,P,,p,',
+            'Jane Bloggs,,Jane,Bloggs,,X,,x',
         ])))
 
         self.assertEqual('Gary Gygax', players.players[0].name)

@@ -12,7 +12,7 @@ class Player(object):
     def __init__(self, name, team, slots):
         self.name = name
         self.team = team or None
-        self.slots = slots
+        self.slots = dict((k, v.upper()) for k, v in slots.iteritems())
 
     def _format_slots(self):
         return ', '.join(sorted(
