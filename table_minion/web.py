@@ -76,7 +76,8 @@ def game(slot):
         abort(404)
     game_tables = db.get_game_tables(slot)
     return render_template(
-        'game.html', game=game, tables=game_tables, player_name=player_name)
+        'game.html', game=game, game_tables=game_tables,
+        player_name=player_name, len=len)
 
 
 @app.route('/games/<slot>/generate_tables', methods=['POST'])

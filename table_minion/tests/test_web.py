@@ -256,8 +256,8 @@ class TestWebGame(BaseWebTestCase):
         self.assert_response_contains(response, 'System: System 1A')
         self.assert_response_contains(response, 'Blurb: Blurb 1A')
         self.assert_response_contains(response, 'Players: 4-6')
-        self.assert_response_contains(response, 'No tables found')
-        self.assertEqual([], self.parse_tables(response))
+        [tables_table] = self.parse_tables(response)
+        self.assert_table_values(tables_table, [['tables'], []])
 
     def test_game_5_players_no_tables(self):
         with self.db_context():
@@ -269,7 +269,7 @@ class TestWebGame(BaseWebTestCase):
         self.assert_response_contains(response, 'System: System 1A')
         self.assert_response_contains(response, 'Blurb: Blurb 1A')
         self.assert_response_contains(response, 'Players: 5')
-        self.assert_response_contains(response, 'No tables found')
-        self.assertEqual([], self.parse_tables(response))
+        [tables_table] = self.parse_tables(response)
+        self.assert_table_values(tables_table, [['tables'], []])
 
     # TODO: Games with tables.

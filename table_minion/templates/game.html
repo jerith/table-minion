@@ -6,21 +6,28 @@
   Blurb: {{ game.blurb }}<br/>
   Players: {{ game.player_count() }}<br/>
 
-  <ul class=tables>
-  {% for table in tables %}
-    <li><div class=table>
+  <table class="tables" border=1 cellspacing=0 cellpadding=2>
+    <tr>
+      <th colspan={{ len(game_tables) }}>tables</th>
+    </tr>
+    <tr>
+    {% for table in game_tables %}
+      <td>
         <ul>
           <li><em>GM: {{player_name(table['gm'])}}</em></li>
+          <br/>
         {% for player in table['players'] %}
           <li>{{player_name(player)}}</li>
         {% endfor %}
+          <br/>
+        {% for warning in table['warnings'] %}
+          <li><em><font color="red">{{ warning }}</font></em></li>
+        {% endfor %}
         </ul>
-    </div></li>
-    <br/>
-  {% else %}
-    <li><em>No tables found.</em></li>
-  {% endfor %}
-  </ul>
+      </td>
+    {% endfor %}
+    </tr>
+  </table>
 
   <hr/>
 

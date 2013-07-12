@@ -5,6 +5,7 @@
     <tr>
       <th>slot</th>
       <th colspan={{ game_tables.max_tables_per_slot() }}>tables</th>
+    </tr>
   {% for slot in game_tables.slots %}
     <tr>
       <td><a href="{{ url_for('game', slot=slot) }}">{{ slot }}</a></td>
@@ -12,8 +13,13 @@
       <td>
         <ul>
           <li><em>GM: {{player_name(table['gm'])}}</em></li>
+          <br/>
         {% for player in table['players'] %}
           <li>{{player_name(player)}}</li>
+        {% endfor %}
+          <br/>
+        {% for warning in table['warnings'] %}
+          <li><em><font color="red">{{ warning }}</font></em></li>
         {% endfor %}
         </ul>
       </td>
@@ -21,7 +27,6 @@
     </tr>
   {% endfor %}
   </table>
-  </ul>
 
   <hr/>
   <form action="{{ url_for('tables_generate_tables') }}" method="POST">
