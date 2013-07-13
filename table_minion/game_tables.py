@@ -141,8 +141,12 @@ class GameTables(object):
 
     @classmethod
     def from_csv(cls, games, players, csv_file):
-        reader = csv.DictReader(csv_file, restkey='players')
-        return cls.from_dicts(games, players, list(reader))
+        reader = csv.DictReader(csv_file, restkey='extra_players')
+        return cls.from_dicts(games, players, [{
+            'slot': row['slot'],
+            'gm': row['gm'],
+            'players': [row['players']] + row.get('extra_players', []),
+        } for row in list(reader)])
 
     def to_csv(self, csv_file):
         writer = csv.writer(csv_file)

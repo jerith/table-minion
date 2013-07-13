@@ -46,6 +46,12 @@ class TestGameTable(TestCase):
 
 
 class TestGameTables(TestCase):
+    def test_slot_sorting(self):
+        games = make_games(['2B', '2A', '1A', '1B'])
+        game_tables = GameTables(games, make_players([]), dict(
+            (slot, []) for slot in games.slots))
+        self.assertEqual(['1A', '1B', '2A', '2B'], game_tables.slots)
+
     def test_from_csv(self):
         games = make_games(['1A', '1B'])
         players = make_players([
@@ -61,7 +67,17 @@ class TestGameTables(TestCase):
                 '1A,GM1A 0,P1A 0,P1A 1,P1A 2,P1A 3,P1A 4',
                 '1B,GM1B 0,P1B 0,P1B 1,P1B 2,P1B 3,P1B 4',
             ])))
-        print game_tables
+
+        self.assertEqual(
+            list(game_tables.all_tables()),
+            list(GameTables(games, players, {
+                '1A': [GameTable(
+                    games['1A'], players.get_player('GM1A 0'),
+                    [players.get_player('P1A %s' % (i,)) for i in xrange(5)])],
+                '1B': [GameTable(
+                    games['1B'], players.get_player('GM1B 0'),
+                    [players.get_player('P1B %s' % (i,)) for i in xrange(5)])],
+            }).all_tables()))
 
     def test_to_csv(self):
         games = make_games(['1A', '1B'])
