@@ -100,10 +100,10 @@ def game_generate_tables(slot):
     game = db.get_game(slot)
     players = db.get_players_for_game(slot)
     generator = GameTablesGenerator(game, players)
-    game_tables = generator.generate_tables()
+    game_tables = generator.generate_lowest_penalty_tables()
     db.set_game_tables(slot, game_tables)
 
-    flash("Tables laid.")
+    flash("Tables generated.")
     return redirect(url_for('game', slot=slot))
 
 
@@ -182,10 +182,10 @@ def tables_generate_tables():
     players = db.get_players()
     games = db.get_games()
     generator = AllTablesGenerator(games, players)
-    game_tables = generator.generate_tables()
+    game_tables = generator.generate_lowest_penalty_tables()
     db.set_all_game_tables(game_tables)
 
-    flash("Tables laid.")
+    flash("Tables generated.")
     return redirect(url_for('tables'))
 
 

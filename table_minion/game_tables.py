@@ -60,6 +60,29 @@ class GameTable(object):
         self.players.append(player)
         self.update_warnings()
 
+    def table_teams(self):
+        teams = set()
+        for player in self.players + [self.gm]:
+            if player and player.team is not None:
+                teams.add(player.team)
+        return teams
+
+    def team_penalties(self):
+        teams = self.table_teams()
+        if not teams:
+            return {}
+        team_players = dict((team, []) for team in teams)
+        for player in self.players:
+            if player.team is not None:
+                team_players[player.team].append(player)
+        team_penalties = {}
+        for team in teams:
+            penalty = sum(2 * i for i in xrange(len(team_players[team])))
+            if self.gm and self.gm.team == team:
+                penalty += 1
+            team_penalties[team] = penalty
+        return team_penalties
+
     def __str__(self):
         return '<Table %s: %s\n%s\n>' % (
             self.slot, player_name(self.gm), '\n'.join([
