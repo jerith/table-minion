@@ -4,6 +4,8 @@
 import re
 import csv
 
+import xlrd
+
 
 SLOT_RE = re.compile(r'^[0-9]+[A-Za-z]?$')
 
@@ -70,22 +72,32 @@ class Players(object):
         return cls([Player(**pdict) for pdict in player_dicts])
 
     @classmethod
+    def _player_dict_from_row(cls, row):
+        for field in row.keys():
+            if field and field.lower() in ('name', 'team'):
+                row[field.lower()] = row[field]
+        return {
+            'name': row['name'],
+            'team': row['team'],
+            'slots': dict((k, v) for k, v in row.iteritems()
+                          if v and (SLOT_RE.match(k)))
+        }
+
+    @classmethod
     def from_csv(cls, csv_file):
         rows = [line for line in csv_file.readlines() if line.strip()]
         reader = csv.DictReader(rows)
-        player_dicts = []
-        for row in reader:
-            for field in row.keys():
-                if field and field.lower() in ('name', 'team'):
-                    row[field.lower()] = row[field]
-            player_dict = {
-                'name': row['name'],
-                'team': row['team'],
-                'slots': dict((k, v) for k, v in row.iteritems()
-                              if v and (SLOT_RE.match(k)))
-            }
-            player_dicts.append(player_dict)
-        return cls.from_dicts(player_dicts)
+        return cls.from_dicts(cls._player_dict_from_row(row) for row in reader)
+
+    @classmethod
+    def from_xls(cls, xls_data):
+        book = xlrd.open_workbook(file_contents=xls_data)
+        sheet = book.sheet_by_index(0)
+        headers = sheet.row_values(0)
+        return cls.from_dicts(
+            cls._player_dict_from_row(
+                dict(zip(headers, sheet.row_values(rowx))))
+            for rowx in xrange(1, sheet.nrows))
 
     def to_csv(self, slots, csv_file):
         fields = ['name', 'team'] + list(slots)

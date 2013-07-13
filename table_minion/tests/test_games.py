@@ -1,39 +1,41 @@
+import os.path
 from unittest import TestCase
 from StringIO import StringIO
 
 from table_minion.games import Game, Games
 
 
-GAMES_CSV = '\r\n'.join([
-    'slot,name,author,system,blurb,min_players,max_players',
-    '1A,Aargh!,Alice Able,SillyDice,Camelot is a silly place.,,',
-    '1B,Bouncing Babies,Brian May,nWoD,Not a very good idea.,5,7',
-    '2A,Alien Attack,Axl Rose,Cthulhu,Giant robots!,,',
-    '2B,Business,Bob Bobson,SrsBsns,Make some RoI.,,',
-    '',
-])
-
-
 class TestGames(TestCase):
     def test_from_csv(self):
-        games = Games.from_csv(StringIO(GAMES_CSV))
+        games = Games.from_csv(StringIO('\n'.join([
+            'slot,name,author,system,blurb,min_players,max_players',
+            '1A,Aargh!,Alice Able,SillyDice,Camelot is a silly place.,,',
+            '1B,Bouncing Babies,Brian May,nWoD,Not a very good idea.,5,7',
+            '2A,Alien Attack,Axl Rose,Cthulhu,Giant robots!,,',
+            '2B,Business,Bob Bobson,SrsBsns,Make some RoI.,,',
+        ])))
+        self.assertEqual(list(games), [
+            Game('1A', 'Aargh!', 'Alice Able', 'SillyDice',
+                 'Camelot is a silly place.', 4, 6),
+            Game('1B', 'Bouncing Babies', 'Brian May', 'nWoD',
+                 'Not a very good idea.', 5, 7),
+            Game('2A', 'Alien Attack', 'Axl Rose', 'Cthulhu', 'Giant robots!'),
+            Game('2B', 'Business', 'Bob Bobson', 'SrsBsns', 'Make some RoI.'),
+        ])
 
-        self.assertEqual('1A', games['1A'].slot)
-        self.assertEqual('Aargh!', games['1A'].name)
-        self.assertEqual('Alice Able', games['1A'].author)
-        self.assertEqual('SillyDice', games['1A'].system)
-        self.assertEqual('Camelot is a silly place.', games['1A'].blurb)
-        self.assertEqual(4, games['1A'].min_players)
-        self.assertEqual(6, games['1A'].max_players)
-
-        self.assertEqual(5, games['1B'].min_players)
-        self.assertEqual(7, games['1B'].max_players)
+    def test_from_xls(self):
+        xls_file = open(os.path.join(os.path.dirname(__file__), 'games.xls'))
+        games = Games.from_xls(xls_file.read())
+        self.assertEqual(list(games), [
+            Game('1A', 'Game 1A', 'Author 1A', 'System 1A', 'Blurb 1A', 4, 6),
+            Game('1B', 'Game 1B', 'Author 1B', 'System 1B', 'Blurb 1B', 5, 5),
+        ])
 
     def test_to_csv(self):
         games = Games({
             '1A': Game(
                 '1A', 'Aargh!', 'Alice Able', 'SillyDice',
-                'Camelot is a silly place.'),
+                'Camelot is a silly place.', 4, 6),
             '1B': Game(
                 '1B', 'Bouncing Babies', 'Brian May', 'nWoD',
                 'Not a very good idea.', 5, 7),
@@ -45,4 +47,11 @@ class TestGames(TestCase):
         games_csv = StringIO()
         games.to_csv(games_csv)
         self.assertEqual(
-            games_csv.getvalue(), GAMES_CSV.replace(',,\r', ',4,6\r'))
+            games_csv.getvalue(), '\r\n'.join([
+                'slot,name,author,system,blurb,min_players,max_players',
+                '1A,Aargh!,Alice Able,SillyDice,Camelot is a silly place.,4,6',
+                '1B,Bouncing Babies,Brian May,nWoD,Not a very good idea.,5,7',
+                '2A,Alien Attack,Axl Rose,Cthulhu,Giant robots!,4,6',
+                '2B,Business,Bob Bobson,SrsBsns,Make some RoI.,4,6',
+                '',
+            ]))

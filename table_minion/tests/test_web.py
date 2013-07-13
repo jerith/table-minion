@@ -61,8 +61,8 @@ class BaseWebTestCase(TestCase):
             yield
             db.close_db()
 
-    def post_file(self, url, filename, fileobj, extra_data=None):
-        data = {filename: (fileobj, filename)}
+    def post_file(self, url, fieldname, filename, fileobj, extra_data=None):
+        data = {fieldname: (fileobj, filename)}
         if extra_data:
             data.update(extra_data)
         return self.client.post(url, data=data)
@@ -79,9 +79,18 @@ class TestWebPlayers(BaseWebTestCase):
     def make_game(self, slot):
         return Game(slot, 'name', 'author', 'system', 'blurb', 4, 6)
 
-    def upload_players(self, csv_data):
+    def upload_players_csv(self, csv_data):
         response = self.post_file(
-            '/players/upload', 'players.csv', StringIO(csv_data))
+            '/players/upload', 'players_file', 'players.csv',
+            StringIO(csv_data))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/players/')
+        return response
+
+    def upload_players_xls(self, xls_filename):
+        response = self.post_file(
+            '/players/upload', 'players_file', 'players.xls',
+            open(xls_filename))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.location, 'http://localhost/players/')
         return response
@@ -146,7 +155,7 @@ class TestWebPlayers(BaseWebTestCase):
 
     def test_import_one_player_no_slots(self):
         self.assert_db_players([])
-        self.upload_players('\n'.join([
+        self.upload_players_csv('\n'.join([
             'name,team',
             'Gary Gygax,TSR',
         ]))
@@ -154,11 +163,20 @@ class TestWebPlayers(BaseWebTestCase):
 
     def test_import_two_players_one_slot_each(self):
         self.assert_db_players([])
-        self.upload_players('\n'.join([
+        self.upload_players_csv('\n'.join([
             'name,team,1A,1B',
             'Gary Gygax,TSR,G,',
             'Dave Arneson,TSR,,G',
         ]))
+        self.assert_db_players([
+            Player('Gary Gygax', 'TSR', {'1A': 'G'}),
+            Player('Dave Arneson', 'TSR', {'1B': 'G'}),
+        ])
+
+    def test_import_two_players_one_slot_each_xls(self):
+        self.assert_db_players([])
+        self.upload_players_xls(os.path.join(
+            os.path.dirname(__file__), 'players.xls'))
         self.assert_db_players([
             Player('Gary Gygax', 'TSR', {'1A': 'G'}),
             Player('Dave Arneson', 'TSR', {'1B': 'G'}),
@@ -169,9 +187,16 @@ class TestWebGames(BaseWebTestCase):
     def slot_link(self, slot):
         return '<a href="/games/%s/">%s</a>' % (slot, slot)
 
-    def upload_games(self, csv_data):
+    def upload_games_csv(self, csv_data):
         response = self.post_file(
-            '/games/upload', 'games.csv', StringIO(csv_data))
+            '/games/upload', 'games_file', 'games.csv', StringIO(csv_data))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.location, 'http://localhost/games/')
+        return response
+
+    def upload_games_xls(self, xls_filename):
+        response = self.post_file(
+            '/games/upload', 'games_file', 'games.xls', open(xls_filename))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.location, 'http://localhost/games/')
         return response
@@ -218,7 +243,7 @@ class TestWebGames(BaseWebTestCase):
 
     def test_import_one_game(self):
         self.assert_db_games([])
-        self.upload_games('\n'.join([
+        self.upload_games_csv('\n'.join([
             'slot,name,author,system,blurb,min_players,max_players',
             '1A,Game 1A,Author 1A,System 1A,Blurb 1A,4,6',
         ]))
@@ -226,11 +251,20 @@ class TestWebGames(BaseWebTestCase):
 
     def test_import_two_games(self):
         self.assert_db_games([])
-        self.upload_games('\n'.join([
+        self.upload_games_csv('\n'.join([
             'slot,name,author,system,blurb,min_players,max_players',
             '1A,Game 1A,Author 1A,System 1A,Blurb 1A,4,6',
             '1B,Game 1B,Author 1B,System 1B,Blurb 1B,5,5',
         ]))
+        self.assert_db_games([
+            self.make_game('1A'),
+            self.make_game('1B', min_players=5, max_players=5),
+        ])
+
+    def test_import_two_games_xls(self):
+        self.assert_db_games([])
+        self.upload_games_xls(os.path.join(
+            os.path.dirname(__file__), 'games.xls'))
         self.assert_db_games([
             self.make_game('1A'),
             self.make_game('1B', min_players=5, max_players=5),

@@ -63,7 +63,12 @@ def games_csv():
 
 @app.route('/games/upload', methods=['POST'])
 def games_upload():
-    db.import_games(Games.from_csv(request.files['games.csv']), delete=True)
+    f = request.files['games_file']
+    if f.filename.endswith('.csv'):
+        games = Games.from_csv(f)
+    else:
+        games = Games.from_xls(f.read())
+    db.import_games(games, delete=True)
     flash("Games imported.")
     return redirect(url_for('games'))
 
@@ -133,8 +138,12 @@ def players_csv():
 
 @app.route('/players/upload', methods=['POST'])
 def players_upload():
-    db.import_players(
-        Players.from_csv(request.files['players.csv']), delete=True)
+    f = request.files['players_file']
+    if f.filename.endswith('.csv'):
+        players = Players.from_csv(f)
+    else:
+        players = Players.from_xls(f.read())
+    db.import_players(players, delete=True)
     flash("Players imported.")
     return redirect(url_for('players'))
 

@@ -15,4 +15,4 @@ building some UI stuff on top of it.
 Dependencies
 ------------
 
-`pip install Flask`
+`pip install Flask xlrd`

@@ -2,6 +2,8 @@
 
 import csv
 
+import xlrd
+
 
 class Game(object):
     def __init__(self, slot, name, author, system, blurb,
@@ -73,6 +75,15 @@ class Games(object):
                 game_dict['min_players'] = int(min_players)
             games.append(game_dict)
         return cls.from_dicts(games)
+
+    @classmethod
+    def from_xls(cls, xls_data):
+        book = xlrd.open_workbook(file_contents=xls_data)
+        sheet = book.sheet_by_index(0)
+        headers = sheet.row_values(0)
+        return cls.from_dicts(
+            dict(zip(headers, sheet.row_values(rowx)))
+            for rowx in xrange(1, sheet.nrows))
 
     def to_csv(self, csv_file):
         fields = [

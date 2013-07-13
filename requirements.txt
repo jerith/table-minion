@@ -4,3 +4,4 @@ MarkupSafe==0.18
 Werkzeug==0.9.1
 gunicorn==17.5
 itsdangerous==0.22
+xlrd
