@@ -102,10 +102,12 @@ def insert_player(player, commit=True):
         (player.name, player.team))
     [player_id] = query_db('SELECT last_insert_rowid();', one=True)
     for slot, reg_type in player.slots.iteritems():
-        query_db('''INSERT INTO player_registrations
-                    (player, slot, registration_type)
-                    VALUES (?, ?, ?);''',
-                 (player_id, slot, reg_type))
+        query = '''
+        INSERT INTO player_registrations
+        (player, slot, registration_type)
+        VALUES (?, ?, ?);
+        '''
+        query_db(query, (player_id, slot, reg_type))
     if commit:
         commit_db()
     return player_id
@@ -122,11 +124,12 @@ def import_players(players, delete=True):
 
 
 def get_players():
-    rows = query_db('''
-        SELECT p.id AS id, name, team, slot, registration_type
-        FROM players AS p
-        LEFT JOIN player_registrations AS pr ON p.id=pr.player;
-        ''')
+    query = '''
+    SELECT p.id AS id, name, team, slot, registration_type
+    FROM players AS p
+    LEFT JOIN player_registrations AS pr ON p.id=pr.player;
+    '''
+    rows = query_db(query)
     players = {}
     for row in rows:
         player_dict = players.setdefault(row['id'], {
@@ -140,12 +143,13 @@ def get_players():
 
 
 def get_players_for_game(slot):
-    rows = query_db('''
-        SELECT p.id AS id, name, team, slot, registration_type
-        FROM players AS p
-        LEFT JOIN player_registrations AS pr ON p.id=pr.player
-        WHERE slot=?;
-        ''', (slot,))
+    query = '''
+    SELECT p.id AS id, name, team, slot, registration_type
+    FROM players AS p
+    LEFT JOIN player_registrations AS pr ON p.id=pr.player
+    WHERE slot=?;
+    '''
+    rows = query_db(query, (slot,))
     players = {}
     for row in rows:
         player_dict = players.setdefault(row['id'], {
@@ -159,12 +163,13 @@ def get_players_for_game(slot):
 
 
 def get_player(name):
-    rows = query_db('''
-        SELECT p.id AS id, name, team, slot, registration_type
-        FROM players AS p
-        LEFT JOIN player_registrations AS pr ON p.id=pr.player
-        WHERE p.name=?;
-        ''', (name,))
+    query = '''
+    SELECT p.id AS id, name, team, slot, registration_type
+    FROM players AS p
+    LEFT JOIN player_registrations AS pr ON p.id=pr.player
+    WHERE p.name=?;
+    '''
+    rows = query_db(query, (name,))
 
     if not rows:
         raise NotFound(name)
@@ -176,14 +181,15 @@ def get_player(name):
 
 
 def insert_game(game, commit=True):
-    query_db('''
-        INSERT INTO games
-        (slot, name, author, system, blurb, min_players, max_players)
-        VALUES (?, ?, ?, ?, ?, ?, ?);
-        ''', (
-            game.slot, game.name, game.author, game.system, game.blurb,
-            game.min_players, game.max_players,
-        ))
+    query = '''
+    INSERT INTO games
+    (slot, name, author, system, blurb, min_players, max_players)
+    VALUES (?, ?, ?, ?, ?, ?, ?);
+    '''
+    query_db(query, (
+        game.slot, game.name, game.author, game.system, game.blurb,
+        game.min_players, game.max_players,
+    ))
     [game_id] = query_db('SELECT last_insert_rowid();', one=True)
     if commit:
         commit_db()
@@ -200,18 +206,20 @@ def import_games(games, delete=True):
 
 
 def get_games():
-    rows = query_db('''
-        SELECT slot, name, author, system, blurb, min_players, max_players
-        FROM games;
-        ''')
+    query = '''
+    SELECT slot, name, author, system, blurb, min_players, max_players
+    FROM games;
+    '''
+    rows = query_db(query)
     return Games.from_dicts([dict(zip(row.keys(), row)) for row in rows])
 
 
 def get_game(slot):
-    row = query_db('''
-        SELECT slot, name, author, system, blurb, min_players, max_players
-        FROM games WHERE slot=?;
-        ''', (slot,), one=True)
+    query = '''
+    SELECT slot, name, author, system, blurb, min_players, max_players
+    FROM games WHERE slot=?;
+    '''
+    row = query_db(query, (slot,), one=True)
     if row is None:
         raise NotFound(slot)
 

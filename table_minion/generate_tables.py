@@ -92,7 +92,7 @@ class AllTablesGenerator(object):
 
     def __str__(self):
         return '<Tables:\n%s\n>' % '\n'.join([
-                '  %s' % table for table in self.tables])
+            '  %s' % table for table in self.tables])
 
     def __repr__(self):
         return str(self)

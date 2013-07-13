@@ -93,7 +93,7 @@ class Games(object):
 
     def __str__(self):
         return '<Games:\n%s\n>' % '\n'.join([
-                '  %s' % game for game in self.games])
+            '  %s' % game for game in self.games])
 
     def __repr__(self):
         return str(self)

@@ -98,7 +98,7 @@ class Players(object):
 
     def __str__(self):
         return '<Players:\n%s\n>' % '\n'.join([
-                '  %s' % player for player in self.players])
+            '  %s' % player for player in self.players])
 
     def __repr__(self):
         return str(self)
