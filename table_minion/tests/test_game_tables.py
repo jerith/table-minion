@@ -5,10 +5,6 @@ from table_minion.tests.utils import make_players, make_games
 from table_minion.game_tables import GameTable, GameTables
 
 
-def make_player_dict(name, team=None, slots=None):
-    return {'name': name, 'team': team, 'slots': slots or {}}
-
-
 class TestGameTable(TestCase):
     def assert_warnings(self, game_table, warnings, info):
         self.assertEqual(game_table.warnings, warnings)

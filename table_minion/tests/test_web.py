@@ -61,11 +61,8 @@ class BaseWebTestCase(TestCase):
             yield
             db.close_db()
 
-    def post_file(self, url, fieldname, filename, fileobj, extra_data=None):
-        data = {fieldname: (fileobj, filename)}
-        if extra_data:
-            data.update(extra_data)
-        return self.client.post(url, data=data)
+    def post_file(self, url, fieldname, filename, fileobj):
+        return self.client.post(url, data={fieldname: (fileobj, filename)})
 
     def make_game(self, slot, **kw):
         kw.setdefault('name', 'Game %s' % (slot,))
