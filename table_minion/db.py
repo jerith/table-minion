@@ -228,14 +228,10 @@ def get_game(slot):
 
 def set_game_tables(slot, game_tables, commit=True):
     query_db('DELETE FROM game_tables WHERE slot=?;', (slot,))
-    for game_table in game_tables:
-        data = {
-            'gm': game_table.gm.name if game_table.gm else None,
-            'players': [p.name for p in game_table.players],
-        }
+    for game_table in game_tables[slot]:
         query_db(
             'INSERT INTO game_tables (slot, data) VALUES (?, ?);',
-            (slot, json.dumps(data)))
+            (slot, json.dumps(game_table.table_data_dict())))
     if commit:
         commit_db()
 
@@ -262,13 +258,9 @@ def get_game_tables(slot, game=None, players=None):
 def set_all_game_tables(game_tables):
     query_db('DELETE FROM game_tables;')
     for game_table in game_tables.all_tables():
-        data = {
-            'gm': game_table.gm.name if game_table.gm else None,
-            'players': [p.name for p in game_table.players],
-        }
         query_db(
             'INSERT INTO game_tables (slot, data) VALUES (?, ?);',
-            (game_table.slot, json.dumps(data)))
+            (game_table.slot, json.dumps(game_table.table_data_dict())))
     commit_db()
 
 

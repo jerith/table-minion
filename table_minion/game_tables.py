@@ -83,6 +83,12 @@ class GameTable(object):
             team_penalties[team] = penalty
         return team_penalties
 
+    def table_data_dict(self):
+        return {
+            'gm': self.gm.name if self.gm else None,
+            'players': [p.name for p in self.players],
+        }
+
     def __str__(self):
         return '<Table %s: %s\n%s\n>' % (
             self.slot, player_name(self.gm), '\n'.join([
