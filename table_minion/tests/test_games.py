@@ -32,18 +32,14 @@ class TestGames(TestCase):
         ])
 
     def test_to_csv(self):
-        games = Games({
-            '1A': Game(
-                '1A', 'Aargh!', 'Alice Able', 'SillyDice',
-                'Camelot is a silly place.', 4, 6),
-            '1B': Game(
-                '1B', 'Bouncing Babies', 'Brian May', 'nWoD',
-                'Not a very good idea.', 5, 7),
-            '2A': Game(
-                '2A', 'Alien Attack', 'Axl Rose', 'Cthulhu', 'Giant robots!'),
-            '2B': Game(
-                '2B', 'Business', 'Bob Bobson', 'SrsBsns', 'Make some RoI.'),
-        })
+        games = Games([
+            Game('1A', 'Aargh!', 'Alice Able', 'SillyDice',
+                 'Camelot is a silly place.', 4, 6),
+            Game('1B', 'Bouncing Babies', 'Brian May', 'nWoD',
+                 'Not a very good idea.', 5, 7),
+            Game('2A', 'Alien Attack', 'Axl Rose', 'Cthulhu', 'Giant robots!'),
+            Game('2B', 'Business', 'Bob Bobson', 'SrsBsns', 'Make some RoI.'),
+        ])
         games_csv = StringIO()
         games.to_csv(games_csv)
         self.assertEqual(

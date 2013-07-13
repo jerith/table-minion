@@ -45,7 +45,9 @@ class Game(object):
 
 class Games(object):
     def __init__(self, games):
-        self.games = games
+        self.games = {}
+        for game in games:
+            self.games[game.slot] = game
 
     def __iter__(self):
         return self.games.itervalues()
@@ -59,8 +61,7 @@ class Games(object):
 
     @classmethod
     def from_dicts(cls, game_dicts):
-        return cls(dict([
-            (gdict['slot'], Game(**gdict)) for gdict in game_dicts]))
+        return cls(Game(**game_dict) for game_dict in game_dicts)
 
     @classmethod
     def from_csv(cls, csv_file):

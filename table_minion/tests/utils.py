@@ -21,6 +21,4 @@ def make_game(slot, **kw):
 def make_games(slots, games_extras=None):
     if games_extras is None:
         games_extras = {}
-    return Games(dict(
-        (s, make_game(s, **games_extras.get(s, {})))
-        for s in slots))
+    return Games(make_game(s, **games_extras.get(s, {})) for s in slots)
