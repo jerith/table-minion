@@ -133,7 +133,8 @@ class GameTables(object):
         writer = csv.writer(csv_file)
         for slot, tables in sorted(self.game_tables.items()):
             for num, game_table in enumerate(tables):
-                writer.writerow(['Table %s (%s)' % (num + 1, slot,)])
+                writer.writerow(['Table %s (%s: %s)' % (
+                    num + 1, slot, game_table.game.name)])
                 writer.writerow(['GM: %s' % (player_name(game_table.gm),)])
                 for player in game_table.players:
                     writer.writerow([player_name(player)])

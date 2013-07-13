@@ -111,7 +111,7 @@ class TestGameTables(TestCase):
         table_list_csv = StringIO()
         game_tables.to_list_csv(table_list_csv)
         self.assertEqual(table_list_csv.getvalue(), '\r\n'.join([
-            'Table 1 (1A)',
+            'Table 1 (1A: Game 1A)',
             'GM: GM1A 0',
             'P1A 0',
             'P1A 1',
@@ -119,7 +119,7 @@ class TestGameTables(TestCase):
             'P1A 3',
             'P1A 4',
             '',
-            'Table 1 (1B)',
+            'Table 1 (1B: Game 1B)',
             'GM: GM1B 0',
             'P1B 0',
             'P1B 1',
