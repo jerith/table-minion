@@ -70,7 +70,6 @@ class GameTablesGenerator(object):
             [(p, t) for t, p in team_penalties.items()], reverse=True)
 
     def team_penalty_variance_total(self, game_tables):
-        print self.team_penalty_variances(game_tables)
         return sum(p for p, t in self.team_penalty_variances(game_tables))
 
     def generate_lowest_penalty_tables(self, tries=100):
@@ -79,7 +78,6 @@ class GameTablesGenerator(object):
             tables = self.generate_tables()
             table_sets.append(
                 (self.team_penalty_variance_total(tables), tables))
-        print sorted([p for p, _ in table_sets])
         return sorted(table_sets)[0][1]
 
 

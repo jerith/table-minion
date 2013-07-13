@@ -78,7 +78,7 @@ class GameTable(object):
         team_penalties = {}
         for team in teams:
             penalty = sum(2 * i for i in xrange(len(team_players[team])))
-            if self.gm and self.gm.team == team:
+            if penalty and self.gm and self.gm.team == team:
                 penalty += 1
             team_penalties[team] = penalty
         return team_penalties
