@@ -1,3 +1,5 @@
+# -*- test-case-name: table_minion.tests.test_db -*-
+
 import json
 import sqlite3
 
@@ -10,7 +12,6 @@ from table_minion.game_tables import GameTables
 
 # TODO: Something less horrible than this.
 
-DATABASE = 'table-minion.db'
 
 SCHEMA_SQL = r"""
 CREATE TABLE IF NOT EXISTS players (
@@ -103,8 +104,7 @@ def insert_player(player, commit=True):
     [player_id] = query_db('SELECT last_insert_rowid();', one=True)
     for slot, reg_type in player.slots.iteritems():
         query = '''
-        INSERT INTO player_registrations
-        (player, slot, registration_type)
+        INSERT INTO player_registrations (player, slot, registration_type)
         VALUES (?, ?, ?);
         '''
         query_db(query, (player_id, slot, reg_type))
