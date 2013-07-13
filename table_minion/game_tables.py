@@ -110,7 +110,7 @@ class GameTables(object):
 
     @property
     def slots(self):
-        return self.games.slots
+        return sorted(self.games.slots)
 
     def __getitem__(self, slot):
         self.games[slot]  # To make sure the game exists.
