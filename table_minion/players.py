@@ -93,11 +93,18 @@ class Players(object):
     def from_xls(cls, xls_data):
         book = xlrd.open_workbook(file_contents=xls_data)
         sheet = book.sheet_by_index(0)
-        headers = sheet.row_values(0)
-        return cls.from_dicts(
-            cls._player_dict_from_row(
-                dict(zip(headers, sheet.row_values(rowx))))
-            for rowx in xrange(1, sheet.nrows))
+        headers = None
+        player_dicts = []
+        for rowx in xrange(sheet.nrows):
+            row = sheet.row_values(rowx)
+            if not any(bool(v) for v in row):
+                continue
+            if headers is None:
+                headers = row
+                continue
+            player_dicts.append(
+                cls._player_dict_from_row(dict(zip(headers, row))))
+        return cls.from_dicts(player_dicts)
 
     def to_csv(self, slots, csv_file):
         fields = ['name', 'team'] + list(slots)
