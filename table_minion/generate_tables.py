@@ -42,7 +42,7 @@ class GameTablesGenerator(object):
             len(self.players), self.game.max_players)
         if remainder:
             table_count += 1
-        return table_count
+        return max([table_count, len(self.gms)])
 
     def allocate_either(self, either):
         while either:
