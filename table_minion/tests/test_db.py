@@ -167,10 +167,9 @@ class TestDB(TestCase):
         ])
         game_table = GameTable(
             games['1A'], list(players)[0], list(players)[1:])
-        game_tables = GameTables(games, players, {'1A': [game_table]})
 
         self.assert_query([], 'SELECT slot, data FROM game_tables')
-        db.set_game_tables('1A', game_tables)
+        db.set_game_tables('1A', [game_table])
         self.assert_query(
             [('1A', json.dumps(game_table.table_data_dict()))],
             'SELECT slot, data FROM game_tables')

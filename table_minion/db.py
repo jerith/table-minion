@@ -228,7 +228,7 @@ def get_game(slot):
 
 def set_game_tables(slot, game_tables, commit=True):
     query_db('DELETE FROM game_tables WHERE slot=?;', (slot,))
-    for game_table in game_tables[slot]:
+    for game_table in game_tables:
         query_db(
             'INSERT INTO game_tables (slot, data) VALUES (?, ?);',
             (slot, json.dumps(game_table.table_data_dict())))
